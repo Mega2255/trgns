@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrush Gains</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Customizing Tailwind's default theme to add 'xxs' font size
+        tailwind.config = {
+          theme: {
+            extend: {
+              fontSize: {
+                'xxs': ['0.65rem', { // Approximately 10.4px
+                    lineHeight: '0.85rem',
+                }],
+                'xxxs': ['0.5rem', { // Even smaller for mobile
+                    lineHeight: '0.7rem',
+                }],
+              }
+            }
+          }
+        }
+    </script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        /* Preloader styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c; /* Dark background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's on top of everything */
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        .preloader-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        .preloader-icon {
+            animation: spin 1.5s linear infinite; /* Bitcoin spin animation */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Custom styles for the gradient text */
+        .gradient-bg {
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        /* Keyframe for a subtle fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        /* Delay for sequential fade-in */
+        .animate-fade-in.delay-1 { animation-delay: 0.2s; }
+        .animate-fade-in.delay-2 { animation-delay: 0.4s; }
+        .animate-fade-in.delay-3 { animation-delay: 0.6s; }
+        .animate-fade-in.delay-4 { animation-delay: 0.8s; }
+        .animate-fade-in.delay-5 { animation-delay: 1.0s; }
+
+        /* Custom glow effect on hover for cards */
+        .card-glow {
+            transition: all 0.3s ease;
+        }
+        .card-glow:hover {
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.6), 0 0 30px rgba(80, 227, 194, 0.4);
+            transform: translateY(-5px);
+        }
+
+        /* Standardized Slide from Bottom Animation for general sections */
+        @keyframes slideInFromBottom {
+            from { opacity: 0; transform: translateY(100px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-slide-up-initial {
+            opacity: 0;
+            transform: translateY(100px); /* Start hidden below */
+            transition: transform 1s ease-out, opacity 1s ease-out; /* Smooth transition */
+        }
+        .fade-slide-up-visible {
+            opacity: 1;
+            transform: translateY(0); /* Slide into place */
+        }
+
+        /* Slide from Left Animation */
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); } /* Adjusted for better visibility */
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .slide-left-initial {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+        .slide-left-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Slide from Right Animation */
+        @keyframes slideInFromRight {
+            from { opacity: 0; transform: translateX(50px); } /* Adjusted for better visibility */
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .slide-right-initial {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+        .slide-right-visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* For alternating hover colors on instruments */
+        .instrument-item:nth-child(odd):hover {
+            background-color: #ffffff; /* White hover for odd items */
+            color: #1a202c; /* Dark text for contrast */
+        }
+        .instrument-item:nth-child(even):hover {
+            background-color: #4A90E2; /* Blue hover for even items */
+            color: #ffffff; /* White text for contrast */
+        }
+        .instrument-item {
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+        }
+        html { scroll-behavior: smooth; }
+
+        /* Mobile navigation overlay */
+        .mobile-nav-overlay {
+            background-color: rgba(26, 32, 44, 0.95); /* Semi-transparent dark overlay */
+            z-index: 1000; /* Ensure it's on top */
+        }
+
+        /* Custom slider styles */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px; /* Reduced thickness for mobile */
+            background: linear-gradient(to right, #4A90E2, #50E3C2); /* Gradient track */
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.9;
+            transition: opacity .2s;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px; /* Smaller thumb for mobile */
+            height: 16px; /* Smaller thumb for mobile */
+            background: #e2e8f0; /* White thumb */
+            border: 2px solid #4A90E2; /* Blue border */
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            margin-top: -5px; /* Adjust to center the thumb vertically on the track */
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #e2e8f0;
+            border: 2px solid #4A90E2;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+
+        /* Custom gradients for account cards and buttons to match image precisely */
+        .bg-card-gradient {
+            background: linear-gradient(to bottom, #4A90E2, #3A7DE1); /* From image */
+        }
+        .bg-button-gradient {
+            background: linear-gradient(to top, #FFFFFF, #E0E0E0); /* White to light grey */
+        }
+        .text-blue-primary {
+            color: #4A90E2; /* Primary blue for text on white buttons */
+        }
+        .text-gray-subtle {
+            color: #d1d5db; /* A slightly darker gray for secondary text, like Daily Return labels */
+        }
+        .account-card-top {
+            background-color: #3867d6; /* Deeper blue for the top section as seen in the image */
+            padding-top: 1rem; /* Reduced padding for mobile */
+            padding-bottom: 1rem;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            width: 100%; /* Ensure it spans full width of card */
+        }
+        .account-card-body {
+            background-color: #2d3748; /* Changed to dark blue/navy blue */
+            padding: 1rem; /* Reduced padding for mobile */
+            padding-top: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+            width: 100%;
+        }
+        .account-card {
+            background-color: transparent; /* Card itself is transparent, sections apply color */
+            overflow: hidden; /* To ensure rounded corners apply correctly to inner elements */
+        }
+        .divider-line {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white for dividers */
+            width: 80%; /* Width as seen in image */
+            margin: 0.25rem auto; /* Reduced margin for mobile */
+        }
+        /* Style for image containers to ensure consistent size and spacing */
+        .payment-method-item {
+            width: 80px; /* Smaller for mobile */
+            height: 30px; /* Smaller for mobile */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a202c; /* Background for the image box */
+            border-radius: 0.25rem; /* Smaller border radius */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 0.25rem; /* Reduced padding */
+        }
+        .payment-method-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensure images fit within their container */
+        }
+        /* Testimonials specific styles */
+        .testimonial-card {
+            background-color: #2d3748; /* Dark blue background for testimonials */
+        }
+
+        /* Continuous Vertical Scroll Animation for table */
+        @keyframes scrollTicker {
+            0% { transform: translateY(0%); }
+            100% { transform: translateY(-50%); } /* Scrolls up by 50% of its own height for seamless loop with duplicated content */
+        }
+
+        .latest-withdrawals-ticker-wrapper {
+            height: 250px; /* Reduced height for mobile */
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3); /* Add some shadow for depth */
+            border-radius: 0.5rem; /* Match other cards/tables */
+            width: 100%; /* Ensure it takes full width of its parent */
+            max-width: 600px; /* Reduced max width for mobile */
+            background-color: #2d3748; /* Background for the wrapper, ensuring consistent color for rounded corners */
+        }
+
+        .ticker-table {
+            width: 100%;
+            animation: scrollTicker 15s linear infinite; /* Adjust duration for speed */
+            /* Remove background from table itself to let wrapper's background show */
+            border-collapse: separate;
+            border-spacing: 0;
+            color: #e2e8f0; /* Default text color for table content */
+            table-layout: fixed; /* Ensures columns respect specified widths/proportions */
+        }
+
+        /* Table specific styles for the Latest Withdrawals section */
+        .withdrawal-table th,
+        .withdrawal-table td {
+            padding: 0.25rem; /* Reduced padding for mobile */
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle divider lines */
+            overflow-wrap: break-word; /* Ensures long words break and wrap */
+            font-size: 0.6rem; /* Very small font for mobile */
+        }
+
+        .withdrawal-table thead {
+            background-color: #3867d6; /* Blue background for the header */
+            color: #ffffff;
+        }
+
+        .withdrawal-table tbody tr {
+            transition: background-color 0.3s ease; /* Smooth transition for hover */
+        }
+        .withdrawal-table tbody tr:hover {
+            background-color: #3f4a5b; /* Slightly lighter blue on hover */
+        }
+
+        .ticker-table tr:last-child td {
+            border-bottom: none; /* No bottom border on the last row for clean look */
+        }
+
+        /* Footer specific styles */
+        .footer-logo {
+            filter: brightness(0) invert(1); /* Makes the blue logo white for dark background */
+        }
+        .footer-link {
+            transition: color 0.3s ease;
+        }
+        .footer-link:hover {
+            color: #4A90E2; /* Blue hover for links */
+        }
+
+        /* Earning Notification Styles */
+        #earning-notification {
+            position: fixed;
+            bottom: 0.5rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(100%) scale(0.9);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s;
+            visibility: hidden;
+            font-size: 0.7rem; /* Smaller font for mobile */
+            backdrop-filter: blur(5px);
+        }
+
+        #earning-notification.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            visibility: visible;
+            animation: fadeInScale 0.6s ease-out forwards, pulseGlow 2s infinite alternate;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(100%) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+            50% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 8px 2px rgba(255, 255, 255, 0.3); }
+            100% { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1); }
+        }
+
+        #earning-notification .close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 1rem;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+            cursor: pointer;
+            line-height: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+        #earning-notification .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 640px) {
+            .payment-method-item {
+                width: 60px;
+                height: 25px;
+                padding: 0.15rem;
+            }
+            
+            /* Adjust hero section for very small screens */
+            .hero-title {
+                font-size: 1.25rem !important;
+                line-height: 1.3 !important;
+            }
+            
+            /* Adjust section headings for mobile */
+            .section-heading {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Adjust button sizes for mobile */
+            .mobile-btn {
+                padding: 0.5rem 1rem !important;
+                font-size: 0.75rem !important;
+            }
+        }
+
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <svg class="preloader-icon w-16 h-16 sm:w-20 sm:h-20 text-blue-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+        </svg>
+        <p class="text-blue-400 text-sm sm:text-lg mt-2 sm:mt-4">Loading Thrush Gains...</p>
+    </div>
+
+    <!-- HEADER - Now Sticky -->
+    <header class="p-2 sm:p-3 md:px-8 flex items-center justify-between shadow-md sticky top-0 z-50 bg-gray-900">
+        <div class="flex items-center space-x-1 sm:space-x-2">
+            <svg class="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2-1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm-3 1a1 1 0 100-2 1 1 0 000 2zm2 1a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="text-white text-xs sm:text-sm md:text-lg font-semibold">Thrush Gains</span>
+        </div>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex space-x-4 lg:space-x-8 text-xs lg:text-sm font-medium">
+            <a href="#how-it-works-section" class="hover:text-blue-400 transition duration-300">MARKETS</a>
+            <a href="#features-section" class="hover:text-blue-400 transition duration-300">ABOUT US</a>
+            <a href="#testimonials-section" class="hover:text-blue-400 transition duration-300">TESTIMONIES</a>
+            <a href="#contact" class="hover:text-blue-400 transition duration-300">CONTACTS</a>
+            <a href="#trade-assets-section" class="hover:text-blue-400 transition duration-300">TRADE</a>
+            <a href="login.html" class="hover:text-blue-400 transition duration-300">LOGIN</a>
+        </nav>
+
+        <!-- Right Section: Language, Login, Signup -->
+        <div class="flex items-center space-x-1 sm:space-x-2 md:space-x-4">
+            <button class="text-xxs text-gray-400 hover:text-white hidden md:block">English</button>
+            <a href="login.html" class="border border-blue-500 text-blue-500 px-2 py-1 sm:px-3 sm:py-1.5 md:px-5 md:py-2.5 rounded-md hover:bg-blue-500 hover:text-white text-xs sm:text-sm md:text-base" onclick="closeMobileMenu()">Login</a>
+            <a href="register.html" class="bg-blue-500 text-white px-2 py-1 sm:px-3 sm:py-1.5 md:px-5 md:py-2.5 rounded-md hover:bg-blue-600 text-xs sm:text-sm md:text-base" onclick="closeMobileMenu()">Signup</a>
+            
+            <!-- Hamburger Menu Button (visible on small screens) -->
+            <button id="mobile-menu-button" class="md:hidden text-white focus:outline-none">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Overlay -->
+    <div id="mobile-menu" class="mobile-nav-overlay fixed inset-0 flex flex-col items-center justify-center space-y-4 text-lg transform -translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+        <button id="close-mobile-menu" class="absolute top-4 right-4 text-white focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+        <a href="#how-it-works-section" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">MARKETS</a>
+        <a href="#features-section" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">ABOUT US</a>
+        <a href="#testimonials-section" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">TESTIMONIES</a>
+        <a href="#contact" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">CONTACTS</a>
+        <a href="#trade-assets-section" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">TRADE</a>
+        <a href="login.html" class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">LOGIN</a>
+        <button class="text-white hover:text-blue-400 text-base" onclick="closeMobileMenu()">English</button>
+        <a href="login.html" class="border border-blue-500 text-blue-500 px-4 py-2 rounded-md hover:bg-blue-500 hover:text-white text-sm" onclick="closeMobileMenu()">Login</a>
+        <a href="register.html" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 text-sm" onclick="closeMobileMenu()">Signup</a>
+    </div>
+
+    <!-- HERO -->
+    <main class="flex-grow flex flex-col md:flex-row items-center justify-center py-4 sm:py-6 md:py-8 px-2 sm:px-4 md:p-8 text-center md:text-left">
+        <div class="md:w-1/2 flex flex-col items-center md:items-start mb-6 md:mb-0 animate-fade-in">
+            <h1 class="hero-title text-lg sm:text-xl md:text-3xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight mb-2 sm:mb-3 md:mb-6">RELIABLE, SIMPLE AND INNOVATIVE</h1>
+            <p class="text-xs sm:text-sm md:text-base lg:text-lg text-gray-300 mb-3 sm:mb-5 md:mb-8 max-w-lg">Trade Cryptocurrencies, Stock indexes, Commodities and Forex with a single Forex-based platform</p>
+            <button class="mobile-btn bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-8 md:py-3 rounded-lg shadow-lg hover:bg-blue-700 flex items-center transition duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+                <span><a href="login.html">Login</a></span>
+            </button>
+        </div>
+        <div class="md:w-1/2 flex flex-col items-center pt-4 md:pt-0">
+            <div class="flex flex-col items-center space-y-3 sm:space-y-4 md:space-y-0 md:flex-row md:space-x-8 lg:space-x-12">
+                <div class="text-center animate-fade-in delay-1">
+                    <p class="text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold gradient-bg">0.1PIP</p>
+                    <p class="text-xs sm:text-sm md:text-base lg:text-lg text-gray-400">TIGHT<br>SPREADS</p>
+                </div>
+            </div>
+            <!-- Placeholder for the custom graphic -->
+            <div class="relative w-full max-w-xs h-20 sm:h-24 md:h-28 mt-4 sm:mt-6 md:mt-16 flex justify-center items-center">
+                <!-- Base gradient bar -->
+                <div class="absolute bottom-0 left-0 right-0 h-5 sm:h-6 md:h-7 bg-gradient-to-r from-blue-500 to-green-400 rounded-full animate-fade-in delay-4"></div>
+                <!-- Large green circle -->
+                <div class="absolute w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-green-400 rounded-full flex items-center justify-center -top-3 sm:-top-3.5 md:-top-4 left-1/2 transform -translate-x-1/2 opacity-70 animate-fade-in delay-5">
+                    <!-- Smaller circle inside -->
+                    <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-green-300 rounded-full opacity-70"></div>
+                </div>
+                <!-- Left blue circle -->
+                <div class="absolute w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-500 rounded-full flex items-center justify-center -bottom-1.5 sm:-bottom-2 md:-bottom-2 left-1/4 transform -translate-x-1/2 opacity-70 animate-fade-in delay-5">
+                     <!-- Smaller circle inside -->
+                    <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-blue-400 rounded-full opacity-70"></div>
+                </div>
+                 <!-- Right blue circle -->
+                 <div class="absolute w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-blue-500 rounded-full flex items-center justify-center -bottom-1.5 sm:-bottom-2 md:-bottom-2 right-1/4 transform translate-x-1/2 opacity-70 animate-fade-in delay-5">
+                     <!-- Smaller circle inside -->
+                    <div class="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 bg-blue-400 rounded-full opacity-70"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SECTION: Popular Instruments -->
+    <section class="py-4 sm:py-6 bg-gray-900 px-2 sm:px-4 md:px-8">
+        <div class="w-full mx-auto mb-6 sm:mb-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3 sm:mb-4 text-center">Popular Instruments</h2>
+            <div class="flex flex-col space-y-2 sm:space-y-3">
+                <div class="bg-gray-800 p-2 sm:p-3 rounded-md shadow-lg instrument-item animate-fade-in delay-1">
+                    <p class="text-white text-xs sm:text-sm font-medium">US 100 Cash CFD</p>
+                    <p class="text-gray-400 text-xxs sm:text-xs">NASDAQ 100 Index</p>
+                </div>
+                <div class="bg-gray-800 p-2 sm:p-3 rounded-md shadow-lg instrument-item animate-fade-in delay-2">
+                    <p class="text-white text-xs sm:text-sm font-medium">DJI</p>
+                    <p class="text-gray-400 text-xxs sm:text-xs">Dow Jones Industrial Average Index</p>
+                </div>
+                <div class="bg-gray-800 p-2 sm:p-3 rounded-md shadow-lg instrument-item animate-fade-in delay-3">
+                    <p class="text-white text-xs sm:text-sm font-medium">HKY</p>
+                    <p class="text-gray-400 text-xxs sm:text-xs">Japan 225</p>
+                </div>
+                <div class="bg-gray-800 p-2 sm:p-3 rounded-md shadow-lg instrument-item animate-fade-in delay-4">
+                    <p class="text-white text-xs sm:text-sm font-medium">DEU40</p>
+                    <p class="text-gray-400 text-xxs sm:text-xs">DAX Index</p>
+                </div>
+                <div class="bg-gray-800 p-2 sm:p-3 rounded-md shadow-lg instrument-item animate-fade-in delay-5">
+                    <p class="text-white text-xs sm:text-sm font-medium">UKXGBP</p>
+                    <p class="text-gray-400 text-xxs sm:text-xs">FTSE 100 Index</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HOW IT WORKS -->
+        <div id="how-it-works-section" class="max-w-screen-xl mx-auto text-center mt-8 sm:mt-12 fade-slide-up-initial px-2 sm:px-4 md:px-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-4 sm:mb-6 md:mb-12">How it works</h2>
+            <div class="bg-gray-800 p-2 sm:p-3 rounded-lg shadow-xl flex flex-col md:flex-row items-stretch justify-around space-y-2 sm:space-y-3 md:space-y-0 md:space-x-6">
+                <div class="p-2 flex-1 card-glow fade-slide-up-initial animate-fade-in delay-1">
+                    <div class="text-blue-400 mb-1 sm:mb-1.5">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-12 md:h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    </div>
+                    <h3 class="text-xs sm:text-sm md:text-xl font-semibold text-white mb-1">Deposit</h3>
+                    <p class="text-gray-300 text-xxs sm:text-xs">Open real account and add funds. We work with more than 20 payment systems.</p>
+                </div>
+                <div class="p-2 flex-1 card-glow fade-slide-up-initial animate-fade-in delay-2">
+                    <div class="text-green-400 mb-1 sm:mb-1.5">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-12 md:h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c-3.5 0-5.5-2-5.5-5.5S5.5 8 9 8s5.5 2 5.5 5.5S12.5 19 9 19zm0 0H6a2 2 0 00-2 2v2"></path></svg>
+                    </div>
+                    <h3 class="text-xs sm:text-sm md:text-xl font-semibold text-white mb-1">Trade</h3>
+                    <p class="text-gray-300 text-xxs sm:text-xs">Trade any of 100 assets and stocks. Use technical analysis and trade the news</p>
+                </div>
+                <div class="p-2 flex-1 card-glow fade-slide-up-initial animate-fade-in delay-3">
+                    <div class="text-purple-400 mb-1 sm:mb-1.5">
+                        <svg class="w-6 h-6 sm:w-7 sm:h-7 md:w-12 md:h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 4v4m0 4v2m-6-3a2 2 0 110-4 2 2 0 010 4zm10 0a2 2 0 110-4 2 2 0 010 4zm-9-5a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                    </div>
+                    <h3 class="text-xs sm:text-sm md:text-xl font-semibold text-white mb-1">Withdraw</h3>
+                    <p class="text-gray-300 text-xxs sm:text-xs">Get funds easily to your bank card or e-wallet. We take no commission.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features-section" class="py-6 sm:py-8 px-2 sm:px-4 md:px-8 bg-gray-800 fade-slide-up-initial">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-3 sm:space-y-4 md:space-y-0 md:space-x-12">
+            <!-- Left side: Features heading and description -->
+            <div class="md:w-1/2 text-center md:text-left">
+                <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3 md:mb-6 flex items-center justify-center md:justify-start">
+                    <!-- Star Icon SVG -->
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-10 md:h-10 text-blue-400 mr-1 sm:mr-2 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.979 2.885a1 1 0 00-.364 1.118l1.519 4.674c.3.921-.755 1.688-1.54 1.118l-3.979-2.885a1 1 0 00-1.176 0l-3.979 2.885c-.785.57-1.84-.197-1.54-1.118l1.519-4.674a1 1 0 00-.364-1.118L2.924 10.091c-.783-.57-.381-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"></path></svg>
+                    Features
+                </h2>
+                <p class="text-xs sm:text-sm md:text-base text-gray-300 mb-2 sm:mb-3 md:mb-6">
+                    We provide fastest trading using modern technologies. No delays in order executions and most accurate quotes. Our trading platform is available around the clock and on weekends. Thrush Gains customer service is available 24/7. We are continuously adding new financial instruments.
+                </p>
+            </div>
+
+            <!-- Right side: Bullet points -->
+            <div class="md:w-1/2 text-left">
+                <ul class="space-y-1 sm:space-y-2 text-gray-300 text-xs sm:text-sm md:text-base">
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2 text-sm sm:text-base md:text-lg">&bull;</span> 
+                        <span>Technical analysis tools: 4 chart types, 6 indicators, trend lines</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2 text-sm sm:text-base md:text-lg">&bull;</span> 
+                        <span>Social trading: watch deals across the globe or trade with your friends</span>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-blue-400 mr-2 text-sm sm:text-base md:text-lg">&bull;</span> 
+                        <span>Over 100 assets including popular stocks</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Trade Assets & Leverage -->
+    <section id="trade-assets-section" class="py-6 sm:py-8 bg-gray-900 px-2 sm:px-4 md:px-8">
+        <div class="max-w-screen-xl mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 sm:space-y-6 md:space-y-0 md:space-x-12">
+            <!-- Left Column: Trade Text and Button -->
+            <div id="trade-text-left" class="md:w-1/2 text-center md:text-left slide-left-initial">
+                <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white leading-tight mb-3 sm:mb-4 md:mb-6">
+                    Trade Forex, S&P 500, Gold, EURUSD and<br class="hidden md:block">30+ assets
+                </h2>
+                <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-300 mb-4 sm:mb-6 md:mb-8 max-w-lg">
+                    Get immediate access to cryptocurrencies, stock indices, commodities and forex with a single Forex-based platform
+                </p>
+                <button class="mobile-btn bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-8 md:py-4 rounded-lg shadow-lg font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base">
+                    Open Account For Free
+                </button>
+            </div>
+
+            <!-- Right Column: Instrument Leverage Display -->
+            <div id="trade-table-right" class="md:w-1/2 w-full slide-right-initial">
+                <div class="bg-gray-800 p-3 sm:p-4 rounded-lg shadow-xl text-gray-300">
+                    <!-- Header for the section -->
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 pb-1 sm:pb-2 border-b border-gray-700 text-xxs sm:text-xs font-semibold text-gray-400 md:grid-cols-4 md:gap-2">
+                        <span class="col-span-1 text-left">Instrument</span>
+                        <span class="col-span-1 text-right md:text-left">Leverage</span>
+                        <span class="hidden md:block md:col-span-1 md:text-left">Instrument</span>
+                        <span class="hidden md:block md:col-span-1 md:text-left">Leverage</span>
+                    </div>
+
+                    <!-- Individual Instrument-Leverage Pairs -->
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 py-1 sm:py-2 border-b border-gray-700 items-center text-xs sm:text-sm md:grid-cols-4 md:gap-2 md:text-base">
+                        <div class="flex items-center space-x-1 text-white font-medium col-span-1 text-xs sm:text-sm">₿ Bitcoin</div>
+                        <div class="text-gray-300 col-span-1 text-right md:text-left text-xs sm:text-sm">100X</div>
+                        <div class="hidden md:flex items-center space-x-1 text-white font-medium col-span-1">€$ EURUSD</div>
+                        <div class="hidden md:block text-gray-300 col-span-1 text-left">1000X</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 py-1 sm:py-2 border-b border-gray-700 items-center text-xs sm:text-sm md:grid-cols-4 md:gap-2 md:text-base">
+                        <div class="flex items-center space-x-1 text-white font-medium col-span-1 text-xs sm:text-sm">Ξ Ethereum</div>
+                        <div class="text-gray-300 col-span-1 text-right md:text-left text-xs sm:text-sm">100X</div>
+                        <div class="hidden md:flex items-center space-x-1 text-white font-medium col-span-1">S&P 500</div>
+                        <div class="hidden md:block text-gray-300 col-span-1 text-left">100X</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 py-1 sm:py-2 border-b border-gray-700 items-center text-xs sm:text-sm md:grid-cols-4 md:gap-2 md:text-base">
+                        <div class="flex items-center space-x-1 text-white font-medium col-span-1 text-xs sm:text-sm">Ł Litecoin</div>
+                        <div class="text-gray-300 col-span-1 text-right md:text-left text-xs sm:text-sm">100X</div>
+                        <div class="hidden md:flex items-center space-x-1 text-white font-medium col-span-1">🪙 GOLD</div>
+                        <div class="hidden md:block text-gray-300 col-span-1 text-left">5000X</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 py-1 sm:py-2 border-b border-gray-700 items-center text-xs sm:text-sm md:grid-cols-4 md:gap-2 md:text-base">
+                        <div class="flex items-center space-x-1 text-white font-medium col-span-1 text-xs sm:text-sm">🪩 Ripple</div>
+                        <div class="text-gray-300 col-span-1 text-right md:text-left text-xs sm:text-sm">100X</div>
+                        <div class="hidden md:flex items-center space-x-1 text-white font-medium col-span-1">🛢️ CRUDE OIL</div>
+                        <div class="hidden md:block text-gray-300 col-span-1 text-left">100X</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-1 sm:gap-x-2 py-1 sm:py-2 items-center text-xs sm:text-sm md:grid-cols-4 md:gap-2 md:text-base">
+                        <div class="flex items-center space-x-1 text-white font-medium col-span-1 text-xs sm:text-sm">⚛️ EOS</div>
+                        <div class="text-gray-300 col-span-1 text-right md:text-left text-xs sm:text-sm">100X</div>
+                        <div class="hidden md:flex items-center space-x-1 text-white font-medium col-span-1">🇯🇵 JAPAN</div>
+                        <div class="hidden md:block text-gray-300 col-span-1 text-left">5000X</div>
+                    </div>
+                    <p class="text-blue-400 text-xxs sm:text-xs mt-2 sm:mt-3 text-left cursor-pointer hover:underline">See all assets</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Profit from Market Ups & Downs -->
+    <section class="py-6 sm:py-8 md:py-10 bg-gray-900 px-2 sm:px-4 md:px-8">
+        <div class="max-w-screen-xl mx-auto text-center mb-6 sm:mb-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">Profit from Market Ups & Downs</h2>
+        </div>
+
+        <div class="max-w-screen-xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-4 sm:space-y-6 md:space-y-0 md:space-x-8 lg:space-x-16">
+            <!-- Left Chart Placeholder -->
+            <div id="chart-left-container" class="w-full md:w-1/3 flex justify-center items-center slide-left-initial">
+                <img src="lower-chart.svg" alt="Market Up Trend Chart Placeholder" class="w-full h-auto rounded-lg shadow-lg max-w-xs md:max-w-none">
+            </div>
+
+            <!-- Middle Text Content and Button -->
+            <div id="profit-text-center" class="w-full md:w-1/3 text-center fade-slide-up-initial">
+                <p class="text-xs sm:text-sm md:text-base lg:text-lg text-gray-300 mb-3 sm:mb-4 md:mb-6 leading-relaxed max-w-lg mx-auto">
+                    Thrush Gains allows you to actively trade most popular cryptocurrencies such as
+                    Bitcoin, Ethereum, Ripple, Litecoin and more, profit from market rallies and declines, or hedge
+                    your existing cryptocurrency holdings
+                </p>
+                <button class="mobile-btn bg-blue-600 text-white px-3 py-2 sm:px-4 sm:py-2 md:px-8 md:py-4 rounded-lg shadow-lg font-semibold hover:bg-blue-700 transition duration-300 transform hover:scale-105 text-xs sm:text-sm md:text-base">
+                    Setup Your Trading Account
+                </button>
+            </div>
+
+            <!-- Right Chart Placeholder -->
+            <div id="chart-right-container" class="w-full md:w-1/3 flex justify-center items-center slide-right-initial">
+                <img src="higher-chart.svg" alt="Market Down Trend Chart Placeholder" class="w-full h-auto rounded-lg shadow-lg max-w-xs md:max-w-none">
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Our Trading Account Types -->
+    <section id="account-types-section" class="py-6 sm:py-8 md:py-10 bg-gray-800 px-2 sm:px-4 md:px-8 fade-slide-up-initial">
+        <div class="max-w-screen-xl mx-auto text-center mb-6 sm:mb-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">Our Trading Account Types</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-4 max-w-screen-xl mx-auto">
+            <!-- Starter Account Card -->
+            <div class="account-card rounded-lg shadow-xl text-white flex flex-col items-center animate-fade-in delay-1">
+                <div class="account-card-top w-full text-center py-2 sm:py-3 md:py-8">
+                    <h3 class="text-sm sm:text-base md:text-2xl font-bold mb-0.5">STARTER</h3>
+                    <p class="text-xxs sm:text-xs md:text-sm italic text-gray-200">Within 14 trading days.</p>
+                </div>
+                <div class="account-card-body w-full p-2 sm:p-3 md:p-6 flex flex-col items-center">
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-1.5">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">DAILY RETURN</p>
+                        <p class="text-xs sm:text-sm md:text-xl font-semibold">Compounding Total of 35%</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-2">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">HASHING FOR 7 DAYS</p>
+                    </div>
+                    <div class="divider-line"></div>
+                    
+                    <div class="w-full text-center mt-1 sm:mt-2">
+                        <div class="flex justify-between text-xxxs sm:text-xxs text-gray-subtle mb-1 px-1 sm:px-2">
+                            <span>MINIMUM <br>$ 500</span>
+                            <span>MAXIMUM <br>$ 4999</span>
+                        </div>
+                        <input type="range" id="starter-slider" min="500" max="4999" value="800" step="1" class="w-full px-1 sm:px-2">
+                        <p class="text-xs sm:text-sm md:text-xl font-bold mt-1">$ <span id="current-price-starter">800</span></p>
+                    </div>
+                    <button class="bg-button-gradient text-blue-primary px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg mt-2 sm:mt-3 font-semibold hover:opacity-90 transition duration-300 text-xxs sm:text-xs">
+                        Sign up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Silver Account Card -->
+            <div class="account-card rounded-lg shadow-xl text-white flex flex-col items-center animate-fade-in delay-2">
+                <div class="account-card-top w-full text-center py-2 sm:py-3 md:py-8">
+                    <h3 class="text-sm sm:text-base md:text-2xl font-bold mb-0.5">SILVER</h3>
+                    <p class="text-xxs sm:text-xs md:text-sm italic text-gray-200">10% Daily</p>
+                </div>
+                <div class="account-card-body w-full p-2 sm:p-3 md:p-6 flex flex-col items-center">
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-1.5">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">DAILY RETURN</p>
+                        <p class="text-xs sm:text-sm md:text-xl font-semibold">Compounding Total of 60%</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-2">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">HASHING FOR 6 DAYS</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="w-full text-center mt-1 sm:mt-2">
+                        <div class="flex justify-between text-xxxs sm:text-xxs text-gray-subtle mb-1 px-1 sm:px-2">
+                            <span>MINIMUM <br>$ 1000</span>
+                            <span>MAXIMUM <br>$ 9999</span>
+                        </div>
+                        <input type="range" id="silver-slider" min="1000" max="9999" value="7500" step="1" class="w-full px-1 sm:px-2">
+                        <p class="text-xs sm:text-sm md:text-xl font-bold mt-1">$ <span id="current-price-silver">7500</span></p>
+                    </div>
+                    <button class="bg-button-gradient text-blue-primary px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg mt-2 sm:mt-3 font-semibold hover:opacity-90 transition duration-300 text-xxs sm:text-xs">
+                        Sign up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Gold Account Card -->
+            <div class="account-card rounded-lg shadow-xl text-white flex flex-col items-center animate-fade-in delay-3">
+                <div class="account-card-top w-full text-center py-2 sm:py-3 md:py-8">
+                    <h3 class="text-sm sm:text-base md:text-2xl font-bold mb-0.5">GOLD</h3>
+                    <p class="text-xxs sm:text-xs md:text-sm italic text-gray-200">15% Daily</p>
+                </div>
+                <div class="account-card-body w-full p-2 sm:p-3 md:p-6 flex flex-col items-center">
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-1.5">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">DAILY RETURN</p>
+                        <p class="text-xs sm:text-sm md:text-xl font-semibold">Compounding Total of 75%</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-2">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">HASHING FOR 5 DAYS</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="w-full text-center mt-1 sm:mt-2">
+                        <div class="flex justify-between text-xxxs sm:text-xxs text-gray-subtle mb-1 px-1 sm:px-2">
+                            <span>MINIMUM <br>$ 2500</span>
+                            <span>MAXIMUM <br>$ 20000</span>
+                        </div>
+                        <input type="range" id="gold-slider" min="2500" max="20000" value="5000" step="1" class="w-full px-1 sm:px-2">
+                        <p class="text-xs sm:text-sm md:text-xl font-bold mt-1">$ <span id="current-price-gold">5000</span></p>
+                    </div>
+                    <button class="bg-button-gradient text-blue-primary px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg mt-2 sm:mt-3 font-semibold hover:opacity-90 transition duration-300 text-xxs sm:text-xs">
+                        Sign up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Platinum Account Card -->
+            <div class="account-card rounded-lg shadow-xl text-white flex flex-col items-center animate-fade-in delay-4">
+                <div class="account-card-top w-full text-center py-2 sm:py-3 md:py-8">
+                    <h3 class="text-sm sm:text-base md:text-2xl font-bold mb-0.5">PLATINUM</h3>
+                    <p class="text-xxs sm:text-xs md:text-sm italic text-gray-200">40% Daily</p>
+                </div>
+                <div class="account-card-body w-full p-2 sm:p-3 md:p-6 flex flex-col items-center">
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-1.5">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">DAILY RETURN</p>
+                        <p class="text-xs sm:text-sm md:text-xl font-semibold">Compounding Total of 120%</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="text-center mb-1 sm:mb-2">
+                        <p class="text-xxxs sm:text-xxs text-gray-subtle">HASHING FOR 3 DAYS</p>
+                    </div>
+                    <div class="divider-line"></div>
+
+                    <div class="w-full text-center mt-1 sm:mt-2">
+                        <div class="flex justify-between text-xxxs sm:text-xxs text-gray-subtle mb-1 px-1 sm:px-2">
+                            <span>MINIMUM <br>$ 15000</span>
+                            <span>MAXIMUM <br>$ 50000</span>
+                        </div>
+                        <input type="range" id="platinum-slider" min="15000" max="50000" value="25000" step="1" class="w-full px-1 sm:px-2">
+                        <p class="text-xs sm:text-sm md:text-xl font-bold mt-1">$ <span id="current-price-platinum">25000</span></p>
+                    </div>
+                    <button class="bg-button-gradient text-blue-primary px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg mt-2 sm:mt-3 font-semibold hover:opacity-90 transition duration-300 text-xxs sm:text-xs">
+                        Sign up
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: We Accept Payment Methods -->
+    <section id="payment-methods-section" class="py-6 sm:py-8 md:py-10 bg-gray-900 px-2 sm:px-4 md:px-8 fade-slide-up-initial">
+        <div class="max-w-screen-xl mx-auto text-center">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-3 sm:mb-4">WE ACCEPT</h2>
+            <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-300 mb-4 sm:mb-6 md:mb-12">Payment Methods for Deposit and Withdrawal</p>
+
+            <div class="flex flex-wrap justify-center items-center gap-1 sm:gap-2 md:gap-6">
+                <!-- Ethereum -->
+                <div class="payment-method-item animate-fade-in delay-1">
+                    <img src="ethereum.png" alt="Ethereum logo" class="h-full w-full object-contain">
+                </div>
+                <!-- Bitcoin -->
+                <div class="payment-method-item animate-fade-in delay-2">
+                    <img src="bitcoin.png" alt="Bitcoin logo" class="h-full w-full object-contain">
+                </div>
+                <!-- Litecoin -->
+                <div class="payment-method-item animate-fade-in delay-3">
+                    <img src="litecoin.png" alt="Litecoin logo" class="h-full w-full object-contain">
+                </div>
+                <!-- Perfect Money -->
+                <div class="payment-method-item animate-fade-in delay-4">
+                    <img src="perfect-money.png" alt="Perfect Money logo">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Testimonials -->
+    <section id="testimonials-section" class="py-6 sm:py-8 md:py-10 bg-gray-800 px-2 sm:px-4 md:px-8 fade-slide-up-initial">
+        <div class="max-w-screen-xl mx-auto text-center mb-6 sm:mb-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3">TESTIMONIES</h2>
+            <p class="text-xs sm:text-sm md:text-base lg:text-xl text-gray-300 italic">Happy investors sharing their testimonies</p>
+        </div>
+
+        <div class="max-w-screen-xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-8">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card p-2 sm:p-3 md:p-6 rounded-lg shadow-lg text-white animate-fade-in delay-1">
+                <div class="flex items-center mb-1 sm:mb-2">
+                    <img src="https://placehold.co/60x60/3867d6/ffffff?text=User1" alt="User 1 Avatar" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mr-2 object-cover">
+                    <div>
+                        <p class="font-bold text-xs sm:text-sm md:text-lg">Sarah Jackson</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 text-xxs sm:text-xs md:text-sm">They offer more profitable returns than any other competition. Their support and services are great and transparent. Thank you Thrush Gains.</p>
+            </div>
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card p-2 sm:p-3 md:p-6 rounded-lg shadow-lg text-white animate-fade-in delay-2">
+                <div class="flex items-center mb-1 sm:mb-2">
+                    <img src="https://placehold.co/60x60/3867d6/ffffff?text=User2" alt="User 2 Avatar" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mr-2 object-cover">
+                    <div>
+                        <p class="font-bold text-xs sm:text-sm md:text-lg">Abraham Stay-son</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 text-xxs sm:text-xs md:text-sm">Easy to use. Best account managers. You guys have it all. Thank you so much for the profit I'm happy I invested.</p>
+            </div>
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card p-2 sm:p-3 md:p-6 rounded-lg shadow-lg text-white animate-fade-in delay-3">
+                <div class="flex items-center mb-1 sm:mb-2">
+                    <img src="https://placehold.co/60x60/3867d6/ffffff?text=User3" alt="User 3 Avatar" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mr-2 object-cover">
+                    <div>
+                        <p class="font-bold text-xs sm:text-sm md:text-lg">Malik Garrett</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 text-xxs sm:text-xs md:text-sm">Started trading with Thrush Gains, very easy to use for beginners. I just got my profit on my CashApp right now. Thanks so much. I will be having the best month ever.</p>
+            </div>
+            <!-- Testimonial 4 -->
+            <div class="testimonial-card p-2 sm:p-3 md:p-6 rounded-lg shadow-lg text-white animate-fade-in delay-4">
+                <div class="flex items-center mb-1 sm:mb-2">
+                    <img src="https://placehold.co/60x60/3867d6/ffffff?text=User4" alt="User 4 Avatar" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mr-2 object-cover">
+                    <div>
+                        <p class="font-bold text-xs sm:text-sm md:text-lg">Henry Williams</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 text-xxs sm:text-xs md:text-sm">A fantastic platform with reliable returns. The user interface is very intuitive, and customer service is always there to help. Highly recommend for new and experienced traders.</p>
+            </div>
+             <!-- Testimonial 5 -->
+             <div class="testimonial-card p-2 sm:p-3 md:p-6 rounded-lg shadow-lg text-white animate-fade-in delay-5">
+                <div class="flex items-center mb-1 sm:mb-2">
+                    <img src="https://placehold.co/60x60/3867d6/ffffff?text=User5" alt="User 5 Avatar" class="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full mr-2 object-cover">
+                    <div>
+                        <p class="font-bold text-xs sm:text-sm md:text-lg">John Smith</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 text-xxs sm:text-xs md:text-sm">I've tried many trading platforms, but Thrush Gains truly stands out. The speed of execution and accuracy of quotes are unparalleled. A real game-changer!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SECTION: Latest Withdrawals (Floating Table) -->
+    <section id="latest-withdrawals-section" class="py-6 sm:py-8 md:py-10 bg-gray-900 px-2 sm:px-4 md:px-8 fade-slide-up-initial">
+        <div class="max-w-screen-xl mx-auto text-center mb-6 sm:mb-8">
+            <h2 class="section-heading text-lg sm:text-xl md:text-3xl lg:text-5xl font-extrabold text-white mb-2 sm:mb-3 flex items-center justify-center">
+                <!-- Icon for Latest Withdrawals -->
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 md:w-10 md:h-10 text-blue-400 mr-1 sm:mr-2 md:mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                LATEST WITHDRAWALS
+            </h2>
+        </div>
+
+        <div class="flex justify-center w-full">
+            <!-- Wrapper for fixed height and overflow hidden -->
+            <div class="latest-withdrawals-ticker-wrapper">
+                <table class="withdrawal-table ticker-table">
+                    <thead>
+                        <tr>
+                            <th class="p-0.5 text-xxs sm:text-xs">Gateway</th>
+                            <th class="p-0.5 text-xxs sm:text-xs">Name</th>
+                            <th class="p-0.5 text-xxs sm:text-xs">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Original set of rows -->
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Williams Rose</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$90,000</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Mary Greyson</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$30,000</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-gray-400">
+                                        <path d="M21 4H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V5a1 1 0 00-1-1zm-1 2v2H4V6h16zM4 18V9h16v9H4zm13-4h-2v-2h2v2zm-4 0H9v-2h4v2z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bank Transfer</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Richard Melvin</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$80,000</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Mike Peters</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$34,400</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Paul Jackson</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$90,000</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Peter Tix</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$32,600</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-orange-400">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bitcoin</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">James Anderson</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$45,200</td>
+                        </tr>
+                        <tr>
+                            <td class="p-0.5">
+                                <div class="flex items-center">
+                                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-gray-400">
+                                        <path d="M21 4H3a1 1 0 00-1 1v14a1 1 0 001 1h18a1 1 0 001-1V5a1 1 0 00-1-1zm-1 2v2H4V6h16zM4 18V9h16v9H4zm13-4h-2v-2h2v2zm-4 0H9v-2h4v2z"/>
+                                    </svg>
+                                    <span class="text-xxxs sm:text-xxs">Bank Transfer</span>
+                                </div>
+                            </td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">Amni Luis</td>
+                            <td class="p-0.5 text-xxxs sm:text-xxs">$90,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW FOOTER SECTION -->
+    <footer class="bg-gray-800 text-white py-4 sm:py-6 px-2 sm:px-4 md:px-8 relative">
+        <div class="max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 md:gap-10 lg:gap-12 items-start">
+            <!-- Left Section: Logo and Description -->
+            <div class="col-span-1 md:col-span-1 flex flex-col items-center md:items-start text-center md:text-left">
+                <div class="flex items-center space-x-1 sm:space-x-2 mb-1 sm:mb-2">
+                    <svg class="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2-1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 1 0 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 1 0 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm-3 1a1 1 0 100-2 1 1 0 000 2zm2 1a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-white text-xs sm:text-sm md:text-base lg:text-lg font-semibold">Thrush Gains</span>
+                </div>
+                <p class="text-gray-400 text-xxs sm:text-xs leading-relaxed max-w-sm">
+                    Are you looking for a stable, reliable, guaranteed weekly income? Thrush Gains™ offers a
+                    range of options to make the most off your investment. Get involved to discover the power of
+                    trading.
+                </p>
+            </div>
+
+            <!-- Middle Left Section: Navigation Links -->
+            <div class="col-span-1 md:col-span-1 text-center md:text-left pt-2 sm:pt-3 md:pt-0">
+                <h3 class="text-sm sm:text-base md:text-lg font-semibold text-white mb-1 sm:mb-2">NAVIGATION</h3>
+                <ul class="space-y-0.5 sm:space-y-1 text-gray-400 text-xxs sm:text-xs">
+                    <li><a href="index.html" class="footer-link hover:text-blue-400">Home</a></li>
+                    <li><a href="#" class="footer-link hover:text-blue-400">About us</a></li>
+                    <li><a href="register.html" class="footer-link hover:text-blue-400">Sign up</a></li>
+                    <li><a href="login.html" class="footer-link hover:text-blue-400">Login</a></li>
+                    <!-- <li><a href="#" class="footer-link hover:text-blue-400">FAQs</a></li> -->
+                    <li><a href="#" class="footer-link hover:text-blue-400">Trade</a></li>
+                    <!-- <li><a href="#" class="footer-link hover:text-blue-400">Cryptos</a></li>
+                    <li><a href="#" class="footer-link hover:text-blue-400">Indices</a></li>
+                    <li><a href="#" class="footer-link hover:text-blue-400">Forex</a></li>
+                    <li><a href="#" class="footer-link hover:text-blue-400">Energies</a></li>
+                    <li><a href="#" class="footer-link hover:text-blue-400">Shares</a></li> -->
+                </ul>
+            </div>
+
+            <!-- Middle Right Section: Contact Information -->
+            <div class="col-span-1 md:col-span-1 text-center md:text-left pt-2 sm:pt-3 md:pt-0" id="contact">
+                <h3 class="text-sm sm:text-base md:text-lg font-semibold text-white mb-1 sm:mb-2">CONTACT INFORMATION</h3>
+                <div class="space-y-0.5 sm:space-y-1 text-gray-400 text-xxs sm:text-xs">
+                    <!-- <div class="flex items-center justify-center md:justify-start">
+                        <svg class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-blue-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.774a11.037 11.037 0 006.103 6.103l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                        </svg>
+                        <span>+1 234 567 890</span>
+                    </div> -->
+                    <div class="flex items-center justify-center md:justify-start">
+                        <svg class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-blue-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Beaumont, Texas, United States</span>
+                    </div>
+                    <div class="flex items-center justify-center md:justify-start">
+                        <svg class="w-2 h-2 sm:w-3 sm:h-3 mr-1 text-blue-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                        </svg>
+                        <a href="mailto:thrushgains@gmail.com" class="footer-link hover:text-blue-400">support@thrushgainsnetwork.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Section: About Text -->
+            <div class="col-span-1 md:col-span-1 text-center md:text-left pt-2 sm:pt-3 md:pt-0">
+                <h3 class="text-sm sm:text-base md:text-lg font-semibold text-white mb-1 sm:mb-2">ABOUT THRUSH GAINS™</h3>
+                <p class="text-gray-400 text-xxs sm:text-xs leading-relaxed">
+                    Thrush Gains™ is totally different from its competitors trying to achieve something special
+                    starting with the website design, trading platform, and extremely functional.
+                </p>
+            </div>
+        </div>
+        <!-- Commodo Secure Badge - Hidden on mobile -->
+        <div class="hidden md:block absolute top-4 right-4 md:right-8">
+            <img src="https://placehold.co/100x100/1a202c/e2e8f0?text=SECURE+BADGE" alt="Commodo Secure Badge" class="w-16 h-auto md:w-24">
+        </div>
+    </footer>
+
+    <!-- Bottom Copyright -->
+    <footer class="bg-gray-900 text-white py-2 sm:py-3">
+        <div class="max-w-screen-xl mx-auto text-center text-xxs sm:text-xs">
+            <p>&copy; 2025 Thrush Gains. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Earning Notification Pop-up -->
+    <div id="earning-notification">
+        <p id="notification-message">Someone from [Country] just earned $[Amount]!</p>
+        <button class="close-btn" onclick="hideNotification()">×</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const howItWorksSection = document.getElementById('how-it-works-section');
+            const featuresSection = document.getElementById('features-section');
+            const tradeTextLeft = document.getElementById('trade-text-left');
+            const tradeTableRight = document.getElementById('trade-table-right');
+            const profitSectionText = document.getElementById('profit-text-center');
+            const chartLeftContainer = document.getElementById('chart-left-container');
+            const chartRightContainer = document.getElementById('chart-right-container');
+            const accountTypesSection = document.getElementById('account-types-section');
+            const paymentMethodsSection = document.getElementById('payment-methods-section');
+            const testimonialsSection = document.getElementById('testimonials-section');
+            const latestWithdrawalsSection = document.getElementById('latest-withdrawals-section');
+            const preloader = document.getElementById('preloader');
+            const earningNotification = document.getElementById('earning-notification');
+            const notificationMessage = document.getElementById('notification-message');
+
+            const instrumentItems = document.querySelectorAll('.instrument-item');
+            const howItWorksCards = document.querySelectorAll('#how-it-works-section .card-glow');
+            const accountTypeCards = document.querySelectorAll('#account-types-section .account-card');
+            const paymentMethodImages = document.querySelectorAll('#payment-methods-section .payment-method-item');
+            const testimonialCards = document.querySelectorAll('#testimonials-section .testimonial-card');
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMobileMenuButton = document.getElementById('close-mobile-menu'); 
+
+            const FADE_SLIDE_UP_INITIAL = 'fade-slide-up-initial';
+            const FADE_SLIDE_UP_VISIBLE = 'fade-slide-up-visible';
+
+            const SLIDE_LEFT_INITIAL = 'slide-left-initial';
+            const SLIDE_LEFT_VISIBLE = 'slide-left-visible';
+
+            const SLIDE_RIGHT_INITIAL = 'slide-right-initial';
+            const SLIDE_RIGHT_VISIBLE = 'slide-right-visible';
+
+            // Data for notifications
+            const notificationData = [
+                { country: 'USA', amount: '1,200' },
+                { country: 'UK', amount: '850' },
+                { country: 'Canada', amount: '1,500' },
+                { country: 'Australia', amount: '990' },
+                { country: 'Germany', amount: '2,100' },
+                { country: 'France', amount: '750' },
+                { country: 'Japan', amount: '3,000' },
+                { country: 'Brazil', amount: '600' },
+                { country: 'India', amount: '1,800' },
+                { country: 'South Africa', amount: '1,100' }
+            ];
+
+            // Different colors for the notification box
+            const notificationBackgrounds = [
+                'linear-gradient(to right, #27ae60, #2ecc71)', // Green gradient
+                'linear-gradient(to right, #3498db, #2980b9)', // Blue gradient
+                'linear-gradient(to right, #9b59b6, #8e44ad)', // Purple gradient
+                'linear-gradient(to right, #e67e22, #d35400)', // Orange gradient
+                'linear-gradient(to right, #e74c3c, #c0392b)',  // Red gradient
+                'linear-gradient(to right, #f1c40f, #f39c12)', // Yellow gradient
+                'linear-gradient(to right, #1abc9c, #16a085)'  // Turquoise gradient
+            ];
+            let currentColorIndex = 0; // To cycle through colors
+
+
+            let notificationInterval; // To store the interval ID
+
+            const setupObserver = (element, initialClass, visibleClass, threshold = 0.1) => {
+                if (!element) return;
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            element.classList.remove(initialClass);
+                            element.classList.add(visibleClass);
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: threshold });
+                const rect = element.getBoundingClientRect();
+                if (rect.top < window.innerHeight && rect.bottom > 0) {
+                    element.classList.remove(initialClass);
+                    element.classList.add(visibleClass);
+                } else {
+                    observer.observe(element);
+                }
+            };
+
+            const setupPriceSlider = (sliderId, priceSpanId) => {
+                const slider = document.getElementById(sliderId);
+                const priceSpan = document.getElementById(priceSpanId);
+                if (slider && priceSpan) {
+                    priceSpan.textContent = parseInt(slider.value).toLocaleString();
+                    slider.addEventListener('input', () => {
+                        priceSpan.textContent = parseInt(slider.value).toLocaleString();
+                    });
+                }
+            };
+
+            setupPriceSlider('starter-slider', 'current-price-starter');
+            setupPriceSlider('silver-slider', 'current-price-silver');
+            setupPriceSlider('gold-slider', 'current-price-gold');
+            setupPriceSlider('platinum-slider', 'current-price-platinum');
+
+            setupObserver(howItWorksSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(featuresSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(profitSectionText, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(accountTypesSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(paymentMethodsSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(testimonialsSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+            setupObserver(latestWithdrawalsSection, FADE_SLIDE_UP_INITIAL, FADE_SLIDE_UP_VISIBLE);
+
+            setupObserver(tradeTextLeft, SLIDE_LEFT_INITIAL, SLIDE_LEFT_VISIBLE);
+            setupObserver(tradeTableRight, SLIDE_RIGHT_INITIAL, SLIDE_RIGHT_VISIBLE);
+
+            setupObserver(chartLeftContainer, SLIDE_LEFT_INITIAL, SLIDE_LEFT_VISIBLE);
+            setupObserver(chartRightContainer, SLIDE_RIGHT_INITIAL, SLIDE_RIGHT_VISIBLE);
+
+            instrumentItems.forEach((item, index) => {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            if (!item.classList.contains('animated-once')) {
+                                item.style.animationDelay = `${index * 0.1}s`;
+                                item.classList.add(FADE_SLIDE_UP_VISIBLE);
+                                item.classList.add('animated-once');
+                            }
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                item.classList.add(FADE_SLIDE_UP_INITIAL);
+                observer.observe(item);
+            });
+
+            howItWorksCards.forEach((card, index) => {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            if (!card.classList.contains('animated-once')) {
+                                card.style.animationDelay = `${index * 0.2}s`;
+                                card.classList.add(FADE_SLIDE_UP_VISIBLE);
+                                card.classList.add('animated-once');
+                            }
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.2 });
+                card.classList.add(FADE_SLIDE_UP_INITIAL);
+                observer.observe(card);
+            });
+
+            accountTypeCards.forEach((card, index) => {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            if (!card.classList.contains('animated-once')) {
+                                card.style.animationDelay = `${index * 0.2}s`;
+                                card.classList.add(FADE_SLIDE_UP_VISIBLE);
+                                card.classList.add('animated-once');
+                            }
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                card.classList.add(FADE_SLIDE_UP_INITIAL);
+                observer.observe(card);
+            });
+
+            paymentMethodImages.forEach((item, index) => {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            if (!item.classList.contains('animated-once')) {
+                                item.style.animationDelay = `${index * 0.1}s`;
+                                item.classList.add('animate-fade-in');
+                                item.classList.add('animated-once');
+                            }
+                            observer.unobserve(item);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                observer.observe(item);
+            });
+
+            testimonialCards.forEach((card, index) => {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            if (!card.classList.contains('animated-once')) {
+                                card.style.animationDelay = `${index * 0.1}s`;
+                                card.classList.add('animate-fade-in');
+                                card.classList.add('animated-once');
+                            }
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                observer.observe(card);
+            });
+
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('-translate-x-full');
+                mobileMenu.classList.add('translate-x-0');
+            });
+
+            closeMobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.remove('translate-x-0');
+                mobileMenu.classList.add('-translate-x-full');
+            });
+
+            window.closeMobileMenu = () => {
+                mobileMenu.classList.remove('translate-x-0');
+                mobileMenu.classList.add('-translate-x-full');
+            };
+
+            // Function to show a random notification
+            function showNotification() {
+                const randomIndex = Math.floor(Math.random() * notificationData.length);
+                const data = notificationData[randomIndex];
+                
+                // Update message and color
+                notificationMessage.textContent = `Someone from ${data.country} just earned $${data.amount}!`;
+                earningNotification.style.background = notificationBackgrounds[currentColorIndex]; // Set gradient background
+                currentColorIndex = (currentColorIndex + 1) % notificationBackgrounds.length; // Cycle color
+
+                earningNotification.classList.add('show');
+
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    earningNotification.classList.remove('show');
+                }, 5000); // Notification visible for 5 seconds
+            }
+
+            // Function to hide notification (manual close or timed)
+            window.hideNotification = () => {
+                earningNotification.classList.remove('show');
+                clearInterval(notificationInterval); // Stop interval if manually closed
+                // If manually closed, restart the interval after a delay so it pops up again
+                setTimeout(() => {
+                    startNotificationCycle();
+                }, 10000); // Wait 10 seconds after manual close to restart
+            };
+
+            // Function to start the continuous notification cycle
+            function startNotificationCycle() {
+                // Clear any existing interval to prevent duplicates
+                if (notificationInterval) {
+                    clearInterval(notificationInterval);
+                }
+                
+                // Show the first notification immediately
+                showNotification();
+
+                // Set interval for subsequent notifications (1 minute = 60000 ms)
+                notificationInterval = setInterval(() => {
+                    showNotification();
+                }, 60000); // Change every 1 minute (5s visible + ~55s hidden)
+            }
+
+
+            // Preloader hiding logic and initial notification trigger
+            window.addEventListener('load', () => {
+                preloader.classList.add('preloader-hidden');
+                // Wait for 1 minute (60000 ms) after preloader hides to show first notification
+                setTimeout(() => {
+                    startNotificationCycle();
+                }, 60000); 
+            });
+        });
+    </script>
+
+    <!--Start of Tawk.to Script-->
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/68a44b7e0f9cc91929d548ba/1j30sdqct';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+<!--End of Tawk.to Script-->
+</body>
+</html>

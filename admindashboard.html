@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles for dark theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Default dark background */
+            color: #e2e8f0; /* Default light text color */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Light Theme (optional for admin, but good to have consistency) */
+        body.light-theme {
+            background-color: #f0f4f8; /* Light background */
+            color: #2d3748; /* Dark text for general body */
+        }
+        body.light-theme .header,
+        body.light-theme .sidebar,
+        body.light-theme .main-content-card,
+        body.light-theme .modal-content,
+        body.light-theme .dropdown-menu {
+            background-color: #ffffff; /* Lighter background for elements */
+            color: #2d3748; /* Dark text for these elements */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body.light-theme .border-gray-700 {
+            border-color: #e2e8f0; /* Lighter borders */
+        }
+        body.light-theme .text-gray-400 {
+            color: #718096; /* Darker gray text */
+        }
+        body.light-theme .text-white {
+            color: #2d3748;
+        }
+        body.light-theme .sidebar a,
+        body.light-theme .sidebar button {
+             color: #2d3748;
+        }
+        body.light-theme .sidebar a:hover,
+        body.light-theme .sidebar button:hover {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
+        body.light-theme .hover\:bg-gray-700:hover {
+            background-color: #edf2f7;
+            color: #2d3748;
+        }
+        body.light-theme .modal-close-btn {
+            background-color: #e2e8f0;
+            color: #2d3748;
+        }
+        body.light-theme .modal-close-btn:hover {
+            background-color: #cbd5e0;
+        }
+        body.light-theme .btn-gradient {
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            color: white;
+        }
+        body.light-theme .form-input {
+            background-color: #edf2f7;
+            border-color: #cbd5e0;
+            color: #2d3748;
+        }
+        body.light-theme .form-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5);
+        }
+        body.light-theme .text-green-500 {
+            color: #28a745;
+        }
+        body.light-theme .text-yellow-400 {
+            color: #ffc107;
+        }
+        body.light-theme .text-red-400 {
+            color: #dc3545;
+        }
+        body.light-theme .text-blue-400 {
+            color: #007bff;
+        }
+        body.light-theme .text-gray-200 {
+            color: #4a5568;
+        }
+        body.light-theme .bg-gray-700 {
+            background-color: #e2e8f0;
+        }
+        body.light-theme .bg-gray-800 {
+            background-color: #f8faff;
+        }
+
+        /* Preloader styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        .preloader-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        .preloader-icon {
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Common Styling */
+        .btn-gradient {
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.6), 0 0 30px rgba(80, 227, 194, 0.4);
+            transform: translateY(-2px);
+        }
+        .form-input {
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5);
+        }
+
+        /* Dashboard Specific Styles */
+        .header {
+            background-color: #2d3748;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+        .sidebar {
+            background-color: #2d3748;
+            transition: transform 0.3s ease-in-out;
+            z-index: 90;
+            overflow-y: auto;
+            /* Default to closed on small screens, open on medium and up */
+            transform: translateX(-100%); /* Hidden by default for mobile */
+            position: fixed; /* Keep it fixed for mobile */
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 70%; /* Adjust width for mobile sidebar */
+            padding-top: 4rem; /* Space for fixed header */
+            box-shadow: 2px 0 5px rgba(0,0,0,0.5); /* Add subtle shadow */
+        }
+        /* State for open sidebar on mobile */
+        .sidebar-open {
+            transform: translateX(0%);
+        }
+        /* Override for desktop: always open */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0%) !important; /* Force open on desktop */
+                position: static; /* Not fixed on desktop */
+                width: 16rem; /* Consistent width for desktop */
+                padding-top: 1rem; /* Adjust padding for desktop layout */
+            }
+        }
+
+        .main-content-card {
+            background-color: #2d3748;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .dropdown-menu {
+            background-color: #3a475a;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 50;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+            pointer-events: none;
+        }
+        .dropdown-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover {
+            background-color: #4a5568;
+        }
+        .dropdown-item:first-child {
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        .dropdown-item:last-child {
+            border-bottom-left-radius: 0.5rem;
+            border-bottom-right-radius: 0.5rem;
+        }
+
+        /* Modal specific styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #2d3748;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            animation: fadeInScaleUp 0.3s ease-out forwards;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes fadeInScaleUp {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .modal-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+        .modal-close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive adjustments for mobile sidebar */
+        #mobile-sidebar-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 80; /* Below sidebar, above main content */
+        }
+        #mobile-sidebar-overlay.show {
+            display: block; /* Shown when sidebar is open */
+        }
+        /* Main content area margin based on sidebar state */
+        .main-content {
+            margin-left: 0; /* Default no margin on mobile */
+            transition: margin-left 0.3s ease-in-out;
+        }
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 16rem; /* Push content to the right on desktop */
+            }
+        }
+        /* Ensure table content is scrollable horizontally on small screens */
+        table {
+            /* min-width: 600px; /* Removed fixed min-width to allow shrinking */
+            width: 100%; /* Ensure it takes available width */
+        }
+        .overflow-x-auto {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+        }
+
+        /* Further small screen adjustments for table font size if needed */
+        @media (max-width: 767px) {
+            table th, table td {
+                font-size: 0.75rem; /* text-xs */
+                padding: 0.5rem 0.5rem; /* Reduce padding for tighter fit */
+            }
+            .main-content-card {
+                padding: 0.75rem; /* Reduce card padding on small screens */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <svg class="preloader-icon w-20 h-20 text-blue-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+        </svg>
+        <p class="text-blue-400 text-lg mt-4">Loading Admin Dashboard...</p>
+    </div>
+
+    <!-- Header -->
+    <header class="header flex justify-between items-center p-4 sticky top-0 w-full md:pl-64">
+        <div class="flex items-center">
+            <!-- Mobile Sidebar Toggle -->
+            <button id="sidebar-toggle-btn" class="md:hidden text-white mr-4 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <h1 class="text-xl md:text-2xl font-bold text-white">Admin Dashboard</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <!-- Admin Email/ID Display -->
+            <div class="flex items-center text-sm mr-4 flex-shrink-0">
+                <span class="text-gray-400 mr-2 hidden sm:inline">Admin:</span>
+                <span id="admin-display-id" class="text-white font-mono text-xs sm:text-sm mr-1 truncate max-w-[80px] sm:max-w-xs">N/A</span>
+            </div>
+            <!-- Logout Button -->
+            <button id="logout-btn" class="text-white hover:text-red-400 transition-colors duration-200 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar">
+            <div class="flex items-center space-x-2 mb-8">
+                <svg class="h-8 w-8 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2-1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 100-2 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 100-2 1 1 0 012 0zm-3 1a1 100-2 1 1 0 000 2zm2 1a1 100-2 1 1 0 012 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="text-white text-lg font-semibold">Thrush Gains Admin</span>
+            </div>
+
+            <nav class="space-y-2">
+                <a href="#users" class="flex items-center p-2 rounded-lg text-white font-medium hover:bg-gray-700 transition duration-200 active-link" id="users-link">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-2V3a1 1 0 00-1-1H6a1 1 0 00-1 1v2H3a2 2 0 00-2 2v11a2 2 0 002 2h2v-3a1 1 0 011-1h7a1 1 0 011 1v3z"></path></svg>
+                    Users
+                </a>
+                <a href="#transactions" class="flex items-center p-2 rounded-lg text-white font-medium hover:bg-gray-700 transition duration-200" id="transactions-link">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V4m0 8v4m-6 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Transactions
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Mobile Sidebar Overlay (used for mobile overlay effect) -->
+        <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-80 hidden md:hidden"></div>
+
+        <!-- Main Content Area -->
+        <main class="main-content flex-1 p-4 transition-all duration-300">
+            <!-- Content Sections -->
+            <section id="users-section" class="main-content-card rounded-xl p-4">
+                <h2 class="text-xl font-semibold mb-4 text-white">All Users</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-200 uppercase bg-gray-700">
+                            <tr>
+                                <th scope="col" class="py-3 px-3">UID</th>
+                                <th scope="col" class="py-3 px-3">Username</th>
+                                <th scope="col" class="py-3 px-3">Email</th>
+                                <th scope="col" class="py-3 px-3">Balance</th>
+                                <th scope="col" class="py-3 px-3">Status</th>
+                                <th scope="col" class="py-3 px-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- User rows will be populated here by JavaScript -->
+                            <tr><td colspan="6" class="py-4 text-center text-gray-500">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="transactions-section" class="main-content-card rounded-xl p-4 mt-6 hidden">
+                <h2 class="text-xl font-semibold mb-4 text-white">Pending Transactions</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-200 uppercase bg-gray-700">
+                            <tr>
+                                <th scope="col" class="py-3 px-3">Date</th>
+                                <th scope="col" class="py-3 px-3">Type</th>
+                                <th scope="col" class="py-3 px-3">User UID</th>
+                                <th scope="col" class="py-3 px-3">Amount</th>
+                                <th scope="col" class="py-3 px-3">Status</th>
+                                <th scope="col" class="py-3 px-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pending-transactions-table-body">
+                            <!-- Pending transaction rows will be populated here by JavaScript -->
+                            <tr><td colspan="6" class="py-4 text-center text-gray-500">No pending transactions.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- UID Edit Modal -->
+    <div id="uid-edit-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-4">
+            <h2 class="text-xl font-bold text-white mb-4">Edit User UID</h2>
+            <div class="mb-4">
+                <p class="text-gray-300 text-sm mb-2">User: <span id="edit-uid-user" class="font-semibold text-white">N/A</span></p>
+                <p class="text-gray-300 text-sm mb-4">Current UID: <span id="edit-uid-current" class="font-mono text-blue-400">N/A</span></p>
+            </div>
+            <form id="edit-uid-form">
+                <div class="mb-4">
+                    <label for="edit-uid-input" class="block text-sm font-medium text-gray-300 mb-2">New Custom UID</label>
+                    <input type="text" id="edit-uid-input" name="customUid" required
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter new custom UID" maxlength="20">
+                    <p class="text-xs text-gray-400 mt-1">3-20 characters, letters, numbers, underscore, hyphen only</p>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                        Update UID
+                    </button>
+                    <button type="button" data-close-modal class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-details-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 hidden modal-overlay">
+        <div class="modal-content p-6 rounded-lg shadow-xl max-w-md w-full relative mx-4">
+            <button class="modal-close-btn absolute top-3 right-3" data-close-modal>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">User Details</h3>
+            <div class="space-y-3 text-gray-300">
+                <p><strong>UID:</strong> <span id="detail-uid"></span></p>
+                <p><strong>Full Name:</strong> <span id="detail-full-name"></span></p>
+                <p><strong>Username:</strong> <span id="detail-username"></span></p>
+                <p><strong>Email:</strong> <span id="detail-email"></span></p>
+                <p><strong>Balance:</strong> $<span id="detail-balance"></span></p>
+                <p><strong>Date of Birth:</strong> <span id="detail-dob"></span></p>
+                <p><strong>Country:</strong> <span id="detail-country"></span></p>
+                <p><strong>City:</strong> <span id="detail-city"></span></p>
+                <!-- <p><strong>Workplace:</strong> <span id="detail-workplace"></span></p> -->
+                <p><strong>Transaction PIN:</strong> <span id="detail-pin"></span></p>
+                <p><strong>Status:</strong> <span id="detail-status"></span></p>
+            </div>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="details-fund-btn" class="btn-gradient text-white py-2 px-4 rounded-lg font-semibold">Fund User</button>
+                <button id="details-block-toggle-btn" class="bg-yellow-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-yellow-700 transition">Block User</button>
+                <button id="details-edit-uid-btn" class="bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition">Edit UID</button> <!-- NEW BUTTON -->
+                <button id="details-delete-btn" class="bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition">Delete User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fund User Modal -->
+    <div id="admin-fund-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 hidden modal-overlay">
+        <div class="modal-content p-6 rounded-lg shadow-xl max-w-sm w-full relative mx-4">
+            <button class="modal-close-btn absolute top-3 right-3" data-close-modal>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Fund User Account</h3>
+            <p class="text-gray-300 mb-4">Funding User: <span id="fund-user-uid"></span></p>
+            <form id="admin-fund-form" class="space-y-4">
+                <div>
+                    <label for="fund-amount" class="block text-sm font-medium text-gray-300 mb-1">Amount ($)</label>
+                    <input type="number" id="fund-amount" min="0.01" step="0.01" required class="w-full form-input" placeholder="e.g., 500.00">
+                </div>
+                <div>
+                    <label for="fund-description" class="block text-sm font-medium text-gray-300 mb-1">Description (optional)</label>
+                    <input type="text" id="fund-description" class="w-full form-input" placeholder="e.g., Admin manual deposit">
+                </div>
+                <button type="submit" class="w-full btn-gradient text-white py-2 px-4 rounded-lg font-semibold">Fund User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Decline Transaction Modal -->
+    <div id="decline-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 hidden modal-overlay">
+        <div class="modal-content p-6 rounded-lg shadow-xl max-w-sm w-full relative mx-4">
+            <button class="modal-close-btn absolute top-3 right-3" data-close-modal>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Decline Transaction</h3>
+            <p class="text-gray-300 mb-4">Transaction ID: <span id="decline-transaction-id"></span></p>
+            <form id="decline-form" class="space-y-4">
+                <div>
+                    <label for="decline-reason" class="block text-sm font-medium text-gray-300 mb-1">Reason for Decline</label>
+                    <textarea id="decline-reason" rows="3" required class="w-full form-input" placeholder="e.g., Insufficient documentation, Fraudulent activity"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition">Confirm Decline</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Modal (for general messages) -->
+    <div id="message-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 hidden modal-overlay">
+        <div class="modal-content p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative mx-4">
+            <h3 class="text-xl font-bold text-white mb-4" id="message-modal-title"></h3>
+            <p class="text-gray-300 mb-6" id="message-modal-text"></p>
+            <button id="message-modal-close-btn" class="btn-gradient text-white py-2 px-6 rounded-lg font-semibold">OK</button>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal (added this for complete logout flow) -->
+    <div id="logout-confirm-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm mx-4 text-center">
+            <h2 class="text-xl font-bold text-white mb-4">Confirm Logout</h2>
+            <p class="text-gray-300 mb-6">Are you sure you want to log out?</p>
+            <div class="flex space-x-3">
+                <button id="confirm-logout-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"><a href="adminlogin.html">
+                    Logout
+                    </a>
+                </button>
+                <button id="cancel-logout-btn" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+        // Firebase SDKs
+        // Firebase CDN Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getDatabase, ref, onValue, set, push, update, remove, get, child as dbChild } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+
+        // Your Firebase Configuration (as provided)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAg4uAaMhUsZaA3bTfRuHy7kNfnalYzE-o",
+            authDomain: "thrushgains.firebaseapp.com",
+            databaseURL: "https://thrushgains-default-rtdb.firebaseio.com",
+            projectId: "thrushgains",
+            storageBucket: "thrushgains.firebasestorage.app",
+            messagingSenderId: "859074169386",
+            appId: "1:859074169386:web:55d1fd673abe58e0405153",
+            measurementId: "G-4HQKL3MLLE"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const analytics = getAnalytics(app); // Initialize Firebase Analytics
+        const appId = firebaseConfig.projectId; // Use projectId as appId for RTDB path
+
+        let currentAdminUser = null; // Store the current authenticated admin user
+        let allUsersData = {}; // Cache for all users fetched from DB
+        let currentTransactionToDecline = null; // To hold transaction data for decline modal
+
+        // Declare UI elements globally
+        let preloader, sidebarToggleBtn, sidebar, mobileSidebarOverlay, logoutBtn, adminDisplayId;
+        let usersLink, transactionsLink, usersSection, transactionsSection;
+        let usersTableBody, pendingTransactionsTableBody;
+        let userDetailsModal, detailUid, detailFullName, detailUsername, detailEmail, detailBalance, detailDob, detailCountry, detailCity, detailWorkplace, detailPin, detailStatus;
+        let detailsFundBtn, detailsBlockToggleButton, detailsDeleteBtn, detailsEditUidBtn; // Added Edit UID button
+        let adminFundModal, fundUserUid, fundAmountInput, fundDescriptionInput, adminFundForm;
+        let declineModal, declineTransactionId, declineReasonInput, declineForm;
+        let messageModal, messageModalTitle, messageModalText, messageModalCloseBtn;
+        // New UID edit modal elements
+        let uidEditModal, editUidInput, editUidForm, editUidCurrentDisplay, editUidUserDisplay;
+
+
+        // --- Utility Functions ---
+
+        /** Shows a modal element. */
+        function showModal(modalElement) {
+            if (modalElement) {
+                modalElement.classList.remove('hidden');
+                console.log(`Modal Shown: ${modalElement.id}`);
+            } else {
+                console.error("Attempted to show a null modalElement!");
+            }
+        }
+
+        /** Hides a modal element. */
+        function hideModal(modalElement) {
+            if (modalElement) {
+                modalElement.classList.add('hidden');
+                console.log(`Modal Hidden: ${modalElement.id}`);
+            } else {
+                console.error("Attempted to hide a null modalElement!");
+            }
+        }
+
+        /** Shows a custom message box (modal). */
+        function showMessageBox(title, message, isConfirmation = false) {
+            if (messageModalTitle && messageModalText && messageModal && messageModalCloseBtn) {
+                messageModalTitle.textContent = title;
+                messageModalText.textContent = message;
+                messageModal.classList.remove('hidden');
+
+                // If it's a confirmation, change OK button text and handle behavior
+                if (isConfirmation) {
+                    messageModalCloseBtn.textContent = 'OK';
+                    // The actual confirmation logic (e.g., for deleteUser) will be attached
+                    // directly to messageModalCloseBtn.onclick *before* calling showMessageBox.
+                    // This way, the caller defines what 'OK' does for a confirmation.
+                } else {
+                    messageModalCloseBtn.textContent = 'OK';
+                    messageModalCloseBtn.onclick = hideMessageBox; // Default close behavior
+                }
+            } else {
+                console.error("MessageBox elements not found!");
+            }
+        }
+
+        /** Hides the custom message box. */
+        function hideMessageBox() {
+            if (messageModal) {
+                messageModal.classList.add('hidden');
+            }
+        }
+
+        /** Toggles sidebar visibility on mobile. */
+        function toggleSidebar() {
+            const isSidebarOpen = sidebar.classList.contains('sidebar-open');
+            if (isSidebarOpen) {
+                // If sidebar is open, close it
+                sidebar.classList.remove('sidebar-open');
+                mobileSidebarOverlay.classList.remove('show');
+            } else {
+                // If sidebar is closed, open it
+                sidebar.classList.add('sidebar-open');
+                mobileSidebarOverlay.classList.add('show');
+            }
+        }
+
+        /** Hides sidebar on mobile. */
+        function hideSidebar() {
+            sidebar.classList.remove('sidebar-open');
+            mobileSidebarOverlay.classList.remove('show');
+        }
+
+        /** Switches main content section visibility. */
+        function showSection(sectionId) {
+            const sections = [usersSection, transactionsSection];
+            sections.forEach(sec => {
+                if (sec) sec.classList.add('hidden');
+            });
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            // Update active link styling
+            const links = [usersLink, transactionsLink];
+            links.forEach(link => {
+                if (link) link.classList.remove('active-link');
+            });
+            const activeLink = document.getElementById(`${sectionId.replace('-section', '')}-link`);
+            if (activeLink) activeLink.classList.add('active-link');
+
+            // Hide sidebar on mobile after navigation
+            if (window.innerWidth < 768) {
+                hideSidebar();
+            }
+        }
+
+
+        // --- Render Functions ---
+
+        /** Populates the users table. */
+        function renderUsersTable(users) {
+            if (!usersTableBody) return;
+            usersTableBody.innerHTML = ''; // Clear existing rows
+            if (Object.keys(users).length === 0) {
+                usersTableBody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">No users found.</td></tr>';
+                return;
+            }
+
+            Object.entries(users).forEach(([uid, userDataContainer]) => {
+                const userData = userDataContainer.profile || {}; // Access profile nested under uid
+                
+                // Display custom UID if available, otherwise show truncated auth UID
+                const displayUid = userData.customUid || uid.substring(0, 8) + '...';
+                
+                const row = document.createElement('tr');
+                row.className = "bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition";
+                row.innerHTML = `
+                    <td class="py-2 px-3 break-all">${displayUid}</td>
+                    <td class="py-2 px-3">${userData.username || 'N/A'}</td>
+                    <td class="py-2 px-3 break-all">${userData.email || 'N/A'}</td>
+                    <td class="py-2 px-3">$${parseFloat(userData.accountBalance || 0).toFixed(2)}</td>
+                    <td class="py-2 px-3">
+                        <span class="${userData.isBlocked ? 'text-red-400' : 'text-green-500'}">
+                            ${userData.isBlocked ? 'Blocked' : 'Active'}
+                        </span>
+                    </td>
+                    <td class="py-2 px-3 text-right">
+                        <button class="text-blue-400 hover:text-blue-500 mr-2 view-user-btn" data-uid="${uid}">View</button>
+                        <button class="text-yellow-400 hover:text-yellow-300 font-medium edit-uid-btn ml-2" data-uid="${uid}" data-username="${userData.username}">Edit UID</button>
+                        <button class="text-green-400 hover:text-green-500 fund-user-action-btn ml-2" data-uid="${uid}" data-username="${userData.username}">Fund</button>
+                    </td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+
+            // Attach event listeners to new buttons
+            document.querySelectorAll('.view-user-btn').forEach(btn => {
+                btn.onclick = (e) => showUserDetails(e.target.dataset.uid);
+            });
+            document.querySelectorAll('.fund-user-action-btn').forEach(btn => {
+                btn.onclick = (e) => openAdminFundModal(e.target.dataset.uid, e.target.dataset.username);
+            });
+            // Attach listener for the new "Edit UID" button in the table
+            document.querySelectorAll('.edit-uid-btn').forEach(btn => {
+                btn.onclick = (e) => openUidEditModal(e.target.dataset.uid);
+            });
+        }
+
+        /** Populates the pending transactions table. */
+        function renderPendingTransactionsTable(transactions) {
+            if (!pendingTransactionsTableBody) return;
+            pendingTransactionsTableBody.innerHTML = ''; // Clear existing rows
+            const pending = transactions.filter(tx => tx.status === 'Pending');
+
+            if (pending.length === 0) {
+                pendingTransactionsTableBody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-gray-500">No pending transactions.</td></tr>';
+                return;
+            }
+
+            pending.forEach(tx => {
+                const row = document.createElement('tr');
+                row.className = "bg-gray-800 border-b border-gray-700 hover:bg-gray-700 transition";
+                // Determine display type based on tx.type for user-friendliness
+                let displayType = tx.type;
+                if (tx.type === 'Deposit' && tx.method === 'Funded') {
+                    displayType = 'Admin Deposit';
+                }
+
+                row.innerHTML = `
+                    <td class="py-2 px-3">${tx.date}</td>
+                    <td class="py-2 px-3">${displayType}</td>
+                    <td class="py-2 px-3 break-all">${tx.userId.substring(0, 8)}...</td>
+                    <td class="py-2 px-3">$${parseFloat(tx.amount || 0).toFixed(2)}</td>
+                    <td class="py-2 px-3 text-yellow-400">${tx.status}</td>
+                    <td class="py-2 px-3 text-right">
+                        <button class="text-green-400 hover:text-green-500 mr-2 approve-tx-btn" data-txid="${tx.id}" data-uid="${tx.userId}" data-amount="${tx.amount}" data-type="${tx.type}">Approve</button>
+                        <button class="text-red-400 hover:text-red-500 decline-tx-btn" data-txid="${tx.id}" data-uid="${tx.userId}">Decline</button>
+                    </td>
+                `;
+                pendingTransactionsTableBody.appendChild(row);
+            });
+
+            // Attach event listeners to new buttons
+            document.querySelectorAll('.approve-tx-btn').forEach(btn => {
+                btn.onclick = (e) => approveTransaction(e.target.dataset.txid, e.target.dataset.uid, parseFloat(e.target.dataset.amount), e.target.dataset.type);
+            });
+            document.querySelectorAll('.decline-tx-btn').forEach(btn => {
+                btn.onclick = (e) => openDeclineModal(e.target.dataset.txid);
+            });
+        }
+
+
+        // --- Firebase Data Fetching & Realtime Listeners ---
+
+        /** Sets up realtime listeners for users and transactions. */
+        function setupRealtimeDbListeners() {
+            // Listen for all users
+            const usersRef = ref(db, `artifacts/${appId}/users`);
+            onValue(usersRef, (snapshot) => {
+                const users = snapshot.val() || {};
+                allUsersData = users; // Cache user data
+                console.log("Users data updated:", users);
+                renderUsersTable(users);
+            }, (error) => {
+                console.error("Error fetching users:", error);
+                showMessageBox("Data Error", "Failed to load user data.");
+            });
+
+            // Listen for all transactions
+            const transactionsRef = ref(db, `artifacts/${appId}/public/data/transactions`);
+            onValue(transactionsRef, (snapshot) => {
+                const transactions = [];
+                snapshot.forEach(childSnapshot => {
+                    transactions.push({ id: childSnapshot.key, ...childSnapshot.val() });
+                });
+                console.log("Transactions data updated:", transactions);
+                renderPendingTransactionsTable(transactions);
+            }, (error) => {
+                console.error("Error fetching transactions:", error);
+                showMessageBox("Data Error", "Failed to load transaction data.");
+            });
+        }
+
+
+        // --- Admin Actions ---
+
+        /** Displays detailed info about a user in a modal. */
+        async function showUserDetails(uid) {
+            const userData = allUsersData[uid]?.profile; // Access profile nested under uid
+            if (!userData) {
+                showMessageBox("User Not Found", "Details for this user could not be loaded.");
+                return;
+            }
+
+            // Display custom UID if available, otherwise show full auth UID
+            const displayUid = userData.customUid || uid;
+            
+            if (detailUid) detailUid.textContent = displayUid;
+            if (detailFullName) detailFullName.textContent = userData.fullName || 'N/A';
+            if (detailUsername) detailUsername.textContent = userData.username || 'N/A';
+            if (detailEmail) detailEmail.textContent = userData.email || 'N/A';
+            if (detailBalance) detailBalance.textContent = parseFloat(userData.accountBalance || 0).toFixed(2);
+            if (detailDob) detailDob.textContent = userData.dateOfBirth || 'N/A';
+            if (detailCountry) detailCountry.textContent = userData.country || 'N/A'; /* Corrected from detailCountry.country.textContent */
+            if (detailCity) detailCity.textContent = userData.city || 'N/A';
+            if (detailWorkplace) detailWorkplace.textContent = userData.workplace || 'N/A';
+            if (detailPin) detailPin.textContent = (userData.transactionPin && userData.transactionPin.length === 4) ? '****' : 'N/A';
+            if (detailStatus) detailStatus.textContent = userData.isBlocked ? 'Blocked' : 'Active';
+
+            // Update block/unblock button text and color
+            if (detailsBlockToggleButton) {
+                if (userData.isBlocked) {
+                    detailsBlockToggleButton.textContent = 'Unblock User';
+                    detailsBlockToggleButton.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
+                    detailsBlockToggleButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                } else {
+                    detailsBlockToggleButton.textContent = 'Block User';
+                    detailsBlockToggleButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                    detailsBlockToggleButton.classList.add('bg-yellow-600', 'hover:bg-yellow-700');
+                }
+                detailsBlockToggleButton.dataset.uid = uid; // Set UID for action
+                detailsBlockToggleButton.dataset.isBlocked = userData.isBlocked ? 'true' : 'false';
+            }
+
+            // Set UID for action buttons
+            if (detailsFundBtn) detailsFundBtn.dataset.uid = uid;
+            if (detailsDeleteBtn) detailsDeleteBtn.dataset.uid = uid;
+            
+            // Add event listener to the details-fund-btn
+            if (detailsFundBtn) {
+                detailsFundBtn.onclick = () => {
+                    // Assuming you want to pass username to openAdminFundModal as well
+                    const username = userData.username || 'N/A';
+                    openAdminFundModal(uid, username);
+                };
+            }
+            // Add event listener to the details-block-toggle-btn
+            if (detailsBlockToggleButton) {
+                detailsBlockToggleButton.onclick = () => {
+                    const isBlocked = detailsBlockToggleButton.dataset.isBlocked === 'true';
+                    toggleBlockUser(uid, isBlocked);
+                };
+            }
+            // Add event listener to the details-delete-btn
+            if (detailsDeleteBtn) {
+                detailsDeleteBtn.onclick = () => {
+                    deleteUser(uid);
+                };
+            }
+            // Manually trigger the edit UID modal from details modal
+            if (detailsEditUidBtn) {
+                detailsEditUidBtn.dataset.uid = uid; // Ensure the UID is set
+                detailsEditUidBtn.onclick = () => openUidEditModal(uid);
+            }
+            
+            showModal(userDetailsModal);
+        }
+
+        /** Opens the UID edit modal for a specific user. */
+        function openUidEditModal(uid) {
+            const userData = allUsersData[uid]?.profile;
+            if (!userData) {
+                showMessageBox("Error", "User data not found.");
+                return;
+            }
+
+            // Show current UID (custom or auth UID)
+            const currentDisplayUid = userData.customUid || uid;
+            if (editUidCurrentDisplay) editUidCurrentDisplay.textContent = currentDisplayUid;
+            if (editUidUserDisplay) editUidUserDisplay.textContent = userData.username || 'N/A';
+
+            // Pre-fill input with current custom UID or leave empty
+            if (editUidInput) editUidInput.value = userData.customUid || '';
+
+            // Store UID on form for submission
+            editUidForm.dataset.targetUid = uid;
+
+            hideModal(userDetailsModal); // Hide user details modal first
+            showModal(uidEditModal);
+        }
+
+        /** Updates a user's custom UID. */
+        async function updateUserUid(uid, newCustomUid) {
+            try {
+                // Validate new UID
+                if (!newCustomUid.trim()) {
+                    showMessageBox("Input Error", "Please enter a valid UID.");
+                    return;
+                }
+
+                // Check if the new UID is already in use by another user
+                const isUidTaken = await checkIfUidExists(newCustomUid.trim(), uid);
+                if (isUidTaken) {
+                    showMessageBox("UID Already Exists", "This UID is already in use by another user. Please choose a different one.");
+                    return;
+                }
+
+                // Update user's custom UID
+                const userProfileRef = ref(db, `artifacts/${appId}/users/${uid}/profile`);
+                await update(userProfileRef, { customUid: newCustomUid.trim() });
+
+                showMessageBox("Success", `User UID updated successfully to: ${newCustomUid.trim()}`);
+                console.log(`Updated UID for user ${uid} to: ${newCustomUid.trim()}`);
+            } catch (error) {
+                console.error("Error updating user UID:", error);
+                showMessageBox("Error", `Failed to update UID: ${error.message}`);
+            }
+        }
+
+        /** Checks if a custom UID is already in use by another user. */
+        async function checkIfUidExists(customUid, excludeAuthUid) {
+            try {
+                const usersRef = ref(db, `artifacts/${appId}/users`);
+                const snapshot = await get(usersRef);
+                
+                if (snapshot.exists()) {
+                    const users = snapshot.val();
+                    for (const [authUid, userData] of Object.entries(users)) {
+                        // Skip the user we're currently editing
+                        if (authUid === excludeAuthUid) continue;
+                        
+                        // Check if another user has this custom UID
+                        if (userData.profile?.customUid === customUid) {
+                            return true;
+                        }
+                        
+                        // Also check if the custom UID matches any auth UID
+                        if (authUid === customUid) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error("Error checking UID existence:", error);
+                return false; // If error, allow the update to proceed
+            }
+        }
+
+        /** Opens the admin fund modal for a specific user. */
+        function openAdminFundModal(uid, username) {
+            if (fundUserUid) fundUserUid.textContent = `${username || 'N/A'} (${uid.substring(0, 8)}...)`;
+            adminFundForm.dataset.targetUid = uid; // Store UID on the form for submission
+            if (fundAmountInput) fundAmountInput.value = ''; // Clear previous input
+            if (fundDescriptionInput) fundDescriptionInput.value = ''; // Clear previous input
+            hideModal(userDetailsModal); // Hide user details modal first
+            showModal(adminFundModal);
+        }
+
+        /** Admin funds a user's account. */
+        async function adminFundUser(uid, amount, description) {
+            try {
+                // Get current user balance (important for atomic update)
+                const userProfileRef = ref(db, `artifacts/${appId}/users/${uid}/profile`);
+                const snapshot = await get(userProfileRef);
+                let currentBalance = 0;
+                if (snapshot.exists()) {
+                    currentBalance = parseFloat(snapshot.val().accountBalance || 0);
+                } else {
+                    // If user profile doesn't exist, create it with initial balance
+                    await set(userProfileRef, { accountBalance: 0.00, transactionPin: '1234' }); // Ensure basic profile exists
+                    currentBalance = 0.00;
+                }
+
+                const newBalance = currentBalance + amount;
+                await update(userProfileRef, { accountBalance: parseFloat(newBalance.toFixed(2)) });
+
+                // Record the funding transaction
+                const newTransactionRef = push(ref(db, `artifacts/${appId}/public/data/transactions`));
+                await set(newTransactionRef, {
+                    id: newTransactionRef.key,
+                    userId: uid,
+                    type: 'Deposit',
+                    method: 'Funded',
+                    amount: amount,
+                    description: description.trim() || `$${amount.toFixed(2)}`, // Use admin's description or just the amount
+                    date: new Date().toISOString().slice(0, 10),
+                    status: 'Completed' // Admin funds are immediately completed
+                });
+
+                showMessageBox("Success", `Successfully funded $${amount.toFixed(2)} to ${uid.substring(0, 8)}....`);
+            } catch (error) {
+                console.error("Error funding user:", error);
+                showMessageBox("Error", `Failed to fund user: ${error.message}`);
+            }
+        }
+
+
+        /** Toggles the block status of a user. */
+        async function toggleBlockUser(uid, currentBlockedStatus) {
+            try {
+                const userProfileRef = ref(db, `artifacts/${appId}/users/${uid}/profile`);
+                const newBlockedStatus = !currentBlockedStatus;
+                await update(userProfileRef, { isBlocked: newBlockedStatus });
+                showMessageBox("Success", `${uid.substring(0, 8)}... has been ${newBlockedStatus ? 'blocked' : 'unblocked'}.`);
+                // Re-render user details modal if it's still open to reflect changes
+                if (!userDetailsModal.classList.contains('hidden')) {
+                    showUserDetails(uid);
+                }
+            }
+            catch (error) {
+                console.error("Error toggling block status:", error);
+                showMessageBox("Error", `Failed to toggle block status: ${error.message}`);
+            }
+        }
+
+        /** Deletes a user and their associated transactions. */
+        async function deleteUser(uid) {
+            // Replaced browser's confirm with showMessageBox for consistency
+            showMessageBox(
+                "Confirm Deletion",
+                "Are you absolutely sure you want to delete this user and ALL their data? This action cannot be undone. Click OK to confirm or Cancel to abort.",
+                true // Indicate this is a confirmation message
+            );
+
+            // Add event listener to the OK button of the message modal for confirmation
+            messageModalCloseBtn.onclick = async () => {
+                hideMessageBox(); // Hide the message box first
+
+                try {
+                    // 1. Delete user profile
+                    await remove(ref(db, `artifacts/${appId}/users/${uid}`));
+
+                    // 2. Delete user's transactions from public transactions path
+                    const transactionsRef = ref(db, `artifacts/${appId}/public/data/transactions`);
+                    const snapshot = await get(transactionsRef);
+                    if (snapshot.exists()) {
+                        const updates = {};
+                        snapshot.forEach(childSnapshot => {
+                            const tx = childSnapshot.val();
+                            if (tx.userId === uid || tx.senderUid === uid || tx.recipientUid === uid) {
+                                updates[`${childSnapshot.key}`] = null; // Set to null to remove
+                            }
+                        });
+                        if (Object.keys(updates).length > 0) {
+                            await update(transactionsRef, updates); // Perform batch deletion
+                        }
+                    }
+
+                    showMessageBox("Success", `User ${uid.substring(0, 8)}... and all their data have been deleted.`);
+                    hideModal(userDetailsModal);
+                } catch (error) {
+                    console.error("Error deleting user:", error);
+                    showMessageBox("Error", `Failed to delete user: ${error.message}`);
+                }
+            };
+
+            // If a 'Cancel' button existed in the message box, you'd handle it here
+            // For now, clicking outside or other close mechanisms would simply hide the message box without proceeding
+        }
+
+
+        /** Approves a pending transaction. */
+        async function approveTransaction(transactionId, userId, amount, type) {
+            try {
+                // 1. Update transaction status
+                const transactionRef = ref(db, `artifacts/${appId}/public/data/transactions/${transactionId}`);
+                await update(transactionRef, { status: 'Completed' }); // Changed from 'Approved' to 'Completed' for consistency with dashboard
+
+                // 2. Update user balance based on transaction type
+                const userProfileRef = ref(db, `artifacts/${appId}/users/${userId}/profile`);
+                const snapshot = await get(userProfileRef);
+                if (!snapshot.exists()) {
+                    showMessageBox("Error", `User profile for ${userId.substring(0, 8)}... not found. Cannot update balance.`);
+                    return;
+                }
+                let currentBalance = parseFloat(snapshot.val().accountBalance || 0);
+                let newBalance = currentBalance;
+
+                if (type === 'Deposit' || type === 'Transfer In' || type === 'Funded') { // Include Admin Funding as balance add
+                    newBalance = currentBalance + amount;
+                } else if (type === 'Withdrawal' || type === 'Transfer Out') {
+                    newBalance = currentBalance - amount;
+                }
+                // Update the user's balance in their profile
+                await update(userProfileRef, { accountBalance: parseFloat(newBalance.toFixed(2)) });
+
+                showMessageBox("Success", `Transaction ${transactionId.substring(0, 8)}... (${type}) approved.`);
+            } catch (error) {
+                console.error("Error approving transaction:", error);
+                showMessageBox("Error", `Failed to approve transaction: ${error.message}`);
+            }
+        }
+
+        /** Opens the decline transaction modal. */
+        function openDeclineModal(transactionId) {
+            currentTransactionToDecline = transactionId; // Store for later use
+            if (declineTransactionId) declineTransactionId.textContent = transactionId.substring(0, 8) + '...';
+            if (declineReasonInput) declineReasonInput.value = ''; // Clear previous input
+            showModal(declineModal);
+        }
+
+        /** Declines a pending transaction. */
+        async function declineTransaction(transactionId, reason) {
+            try {
+                const transactionRef = ref(db, `artifacts/${appId}/public/data/transactions/${transactionId}`);
+                await update(transactionRef, { status: 'Declined', declineReason: reason });
+                showMessageBox("Success", `Transaction ${transactionId.substring(0, 8)}... declined. Reason: ${reason}`);
+            } catch (error) {
+                console.error("Error declining transaction:", error);
+                showMessageBox("Error", `Failed to decline transaction: ${error.message}`);
+            }
+        }
+
+        // --- Main DOM Content Loaded Listener ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Assign UI elements
+            preloader = document.getElementById('preloader');
+            sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+            sidebar = document.getElementById('sidebar');
+            mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+            logoutBtn = document.getElementById('logout-btn');
+            adminDisplayId = document.getElementById('admin-display-id');
+
+            usersLink = document.getElementById('users-link');
+            transactionsLink = document.getElementById('transactions-link');
+            usersSection = document.getElementById('users-section');
+            transactionsSection = document.getElementById('transactions-section');
+
+            usersTableBody = document.getElementById('users-table-body');
+            pendingTransactionsTableBody = document.getElementById('pending-transactions-table-body');
+
+            userDetailsModal = document.getElementById('user-details-modal');
+            detailUid = document.getElementById('detail-uid');
+            detailFullName = document.getElementById('detail-full-name');
+            detailUsername = document.getElementById('detail-username');
+            detailEmail = document.getElementById('detail-email');
+            detailBalance = document.getElementById('detail-balance');
+            detailDob = document.getElementById('detail-dob');
+            detailCountry = document.getElementById('detail-country');
+            detailCity = document.getElementById('detail-city');
+            detailWorkplace = document.getElementById('detail-workplace');
+            detailPin = document.getElementById('detail-pin');
+            detailStatus = document.getElementById('detail-status');
+
+            detailsFundBtn = document.getElementById('details-fund-btn');
+            detailsBlockToggleButton = document.getElementById('details-block-toggle-btn');
+            detailsDeleteBtn = document.getElementById('details-delete-btn');
+            detailsEditUidBtn = document.getElementById('details-edit-uid-btn'); // New Edit UID button
+
+            adminFundModal = document.getElementById('admin-fund-modal');
+            fundUserUid = document.getElementById('fund-user-uid');
+            fundAmountInput = document.getElementById('fund-amount');
+            fundDescriptionInput = document.getElementById('fund-description');
+            adminFundForm = document.getElementById('admin-fund-form');
+
+            declineModal = document.getElementById('decline-modal');
+            declineTransactionId = document.getElementById('decline-transaction-id');
+            declineReasonInput = document.getElementById('decline-reason');
+            declineForm = document.getElementById('decline-form');
+
+            messageModal = document.getElementById('message-modal');
+            messageModalTitle = document.getElementById('message-modal-title');
+            messageModalText = document.getElementById('message-modal-text');
+            messageModalCloseBtn = document.getElementById('message-modal-close-btn');
+
+            // New UID edit modal elements
+            uidEditModal = document.getElementById('uid-edit-modal');
+            editUidInput = document.getElementById('edit-uid-input');
+            editUidForm = document.getElementById('edit-uid-form');
+            editUidCurrentDisplay = document.getElementById('edit-uid-current');
+            editUidUserDisplay = document.getElementById('edit-uid-user');
+
+            // General modal close button listener
+            document.querySelectorAll('[data-close-modal]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal-overlay');
+                    if (modal) hideModal(modal);
+                });
+            });
+
+            // Hide modal when clicking outside of modal content
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.addEventListener('click', (e) => {
+                    // Only hide if the click is directly on the overlay, not on the modal content itself
+                    if (e.target === overlay) hideModal(overlay);
+                });
+            });
+
+            // Message modal close button
+            if (messageModalCloseBtn) messageModalCloseBtn.addEventListener('click', hideMessageBox);
+
+
+            // --- Authentication Check ---
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentAdminUser = user;
+                    console.log("Admin logged in:", user.email || user.uid);
+                    if (adminDisplayId) adminDisplayId.textContent = user.email || user.uid.substring(0, 8) + '...';
+
+                    setupRealtimeDbListeners(); // Start fetching data
+                    if (preloader) preloader.classList.add('preloader-hidden');
+                } else {
+                    console.log("No admin user logged in, redirecting to adminlogin.html");
+                    window.location.href = 'adminlogin.html'; // Redirect unauthenticated users
+                }
+            });
+
+
+            // --- Event Listeners ---
+
+            // Sidebar Toggle
+            if (sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            if (mobileSidebarOverlay) mobileSidebarOverlay.addEventListener('click', hideSidebar);
+
+            // Sidebar Navigation (also closes sidebar on mobile)
+            if (usersLink) usersLink.addEventListener('click', (e) => { e.preventDefault(); showSection('users-section'); });
+            if (transactionsLink) transactionsLink.addEventListener('click', (e) => { e.preventDefault(); showSection('transactions-section'); });
+
+            // Logout
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    showModal(document.getElementById('logout-confirm-modal'));
+                });
+            }
+            if (document.getElementById('confirm-logout-btn')) {
+                document.getElementById('confirm-logout-btn').addEventListener('click', async () => {
+                    try {
+                        await signOut(auth);
+                        console.log("Admin signed out successfully.");
+                        window.location.href = 'adminlogin.html'; // Redirect to login page
+                    } catch (error) {
+                        console.error("Logout failed:", error);
+                        showMessageBox("Logout Error", `Failed to sign out: ${error.message}`);
+                    } finally {
+                        hideModal(document.getElementById('logout-confirm-modal'));
+                    }
+                });
+            }
+            if (document.getElementById('cancel-logout-btn')) {
+                document.getElementById('cancel-logout-btn').addEventListener('click', () => {
+                    hideModal(document.getElementById('logout-confirm-modal'));
+                });
+            }
+
+
+            // Admin Fund Form Submission
+            if (adminFundForm) {
+                adminFundForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const uid = adminFundForm.dataset.targetUid;
+                    const amount = parseFloat(fundAmountInput.value);
+                    const description = fundDescriptionInput.value.trim();
+
+                    if (!uid || isNaN(amount) || amount <= 0) {
+                        showMessageBox("Input Error", "Please provide a valid user and a positive amount.");
+                        return;
+                    }
+
+                    await adminFundUser(uid, amount, description);
+                    hideModal(adminFundModal);
+                });
+            }
+
+            // UID Edit Form Submission
+            if (editUidForm) {
+                editUidForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const uid = editUidForm.dataset.targetUid;
+                    const newCustomUid = editUidInput.value.trim();
+
+                    if (!uid) {
+                        showMessageBox("Error", "User UID not found.");
+                        return;
+                    }
+
+                    if (!newCustomUid) {
+                        showMessageBox("Input Error", "Please enter a new UID.");
+                        return;
+                    }
+
+                    // Basic validation for UID format
+                    if (newCustomUid.length < 3 || newCustomUid.length > 20) {
+                        showMessageBox("Input Error", "UID must be between 3 and 20 characters long.");
+                        return;
+                    }
+
+                    // Check for invalid characters (allow alphanumeric, underscore, hyphen)
+                    if (!/^[a-zA-Z0-9_-]+$/.test(newCustomUid)) {
+                        showMessageBox("Input Error", "UID can only contain letters, numbers, underscores, and hyphens.");
+                        return;
+                    }
+
+                    await updateUserUid(uid, newCustomUid);
+                    hideModal(uidEditModal);
+                });
+            }
+
+            // User Details Modal Actions
+            if (detailsFundBtn) {
+                detailsFundBtn.addEventListener('click', () => {
+                    const uid = detailsFundBtn.dataset.uid;
+                    // Make sure allUsersData[uid] exists before trying to access profile.username
+                    const username = allUsersData[uid] && allUsersData[uid].profile ? allUsersData[uid].profile.username : 'N/A';
+                    openAdminFundModal(uid, username);
+                });
+            }
+            if (detailsBlockToggleButton) {
+                detailsBlockToggleButton.addEventListener('click', () => {
+                    const uid = detailsBlockToggleButton.dataset.uid;
+                    const isBlocked = detailsBlockToggleButton.dataset.isBlocked === 'true';
+                    toggleBlockUser(uid, isBlocked);
+                });
+            }
+            if (detailsDeleteBtn) {
+                detailsDeleteBtn.addEventListener('click', () => {
+                    const uid = detailsDeleteBtn.dataset.uid;
+                    deleteUser(uid);
+                });
+            }
+            if (detailsEditUidBtn) {
+                detailsEditUidBtn.addEventListener('click', () => {
+                    const uid = detailsEditUidBtn.dataset.uid;
+                    openUidEditModal(uid);
+                });
+            }
+
+            // Decline Transaction Form Submission
+            if (declineForm) {
+                declineForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const reason = declineReasonInput.value.trim();
+                    if (!reason) {
+                        showMessageBox("Input Error", "Please provide a reason for declining.");
+                        return;
+                    }
+                    await declineTransaction(currentTransactionToDecline, reason);
+                    hideModal(declineModal);
+                });
+            }
+
+            // Preloader hiding on window load
+            window.addEventListener('load', () => {
+                if (preloader) preloader.classList.add('preloader-hidden');
+            });
+        });
+    </script>
+</body>
+</html>
