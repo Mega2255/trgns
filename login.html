@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrush Gains - Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            color: #e2e8f0; /* Light text color */
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        /* Preloader styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+        }
+        .preloader-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        .preloader-icon {
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Gradient for buttons and accents */
+        .btn-gradient {
+            background: linear-gradient(to right, #4A90E2, #50E3C2);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.6), 0 0 30px rgba(80, 227, 194, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Input field styling */
+        .form-input {
+            background-color: #2d3748; /* Darker input background */
+            border: 1px solid #4a5568; /* Subtle border */
+            color: #e2e8f0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #4A90E2; /* Blue focus border */
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5); /* Blue glow on focus */
+        }
+
+        /* Card background */
+        .card-bg {
+            background-color: #2d3748; /* Slightly lighter dark for cards */
+        }
+
+        /* Responsive text sizes for message boxes */
+        .message-box-text {
+            font-size: 0.875rem; /* text-sm default */
+        }
+        @media (max-width: 640px) {
+            .message-box-text {
+                font-size: 0.75rem; /* text-xs on small screens */
+            }
+        }
+
+        /* Modal specific styles */
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #2d3748;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            animation: fadeInScaleUp 0.3s ease-out forwards;
+        }
+        @keyframes fadeInScaleUp {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <svg class="preloader-icon w-20 h-20 text-blue-500" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.006 17.065c-2.704 0-4.475-1.574-4.636-3.837h2.06c.108.974.887 1.638 2.576 1.638 1.48 0 2.276-.645 2.276-1.517 0-.901-.635-1.378-2.316-2.127-1.928-.867-3.159-1.996-3.159-3.79 0-1.854 1.5-3.35 4.318-3.35 2.181 0 3.665.805 4.32 2.223h-2.03c-.225-.97-1.107-1.428-2.274-1.428-1.205 0-1.85.546-1.85 1.341 0 .809.522 1.157 1.935 1.77 2.056.885 3.197 2.18 3.197 3.906 0 2.074-1.63 3.522-4.57 3.522z"/>
+        </svg>
+        <p class="text-blue-400 text-lg mt-4">Loading Thrush Gains...</p>
+    </div>
+
+    <!-- Login/Register/Forgot Password Container -->
+    <div class="w-full max-w-md card-bg rounded-lg shadow-2xl p-6 sm:p-8 md:p-10 transform transition-all duration-300 scale-95 md:scale-100 opacity-0" id="auth-container">
+        <!-- Logo/Title -->
+        <div class="flex items-center justify-center space-x-2 mb-6">
+            <svg class="h-10 w-10 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm2-1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm3 1a1 100-2 1 1 0 000 2zm-2 1a1 1 0 11-2 0 1 1 0 012 0zm-3 1a1 1 0 100-2 1 1 0 000 2zm2 1a1 1 0 11-2 0 1 1 0 012 0z" clip-rule="evenodd"></path>
+            </svg>
+            <h2 class="text-3xl font-bold text-white">Thrush Gains</h2>
+        </div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label for="login-email" class="block text-sm font-medium text-gray-300 mb-1">Email address</label>
+                <input type="email" id="login-email" name="email" required class="w-full form-input">
+            </div>
+            <div>
+                <label for="login-password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <input type="password" id="login-password" name="password" required class="w-full form-input">
+            </div>
+            <button type="submit" class="w-full btn-gradient text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center" id="login-btn">
+                <span id="login-btn-text">Log in</span>
+                <svg id="login-spinner" class="animate-spin h-5 w-5 ml-3 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <!-- Forgot Password Form (hidden by default) -->
+        <form id="forgot-password-form" class="space-y-4 hidden">
+            <div>
+                <label for="reset-email" class="block text-sm font-medium text-gray-300 mb-1">Email address</label>
+                <input type="email" id="reset-email" name="email" required class="w-full form-input">
+            </div>
+            <button type="submit" class="w-full btn-gradient text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center" id="reset-password-btn">
+                <span id="reset-password-btn-text">Send Reset Email</span>
+                <svg id="reset-password-spinner" class="animate-spin h-5 w-5 ml-3 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </form>
+
+        <!-- Switcher Links -->
+        <div class="mt-6 text-center text-gray-400 text-sm space-y-2">
+            <p id="toggle-register-link">Don't have an account? <a href="register.html" class="text-blue-400 hover:text-blue-500 font-medium transition-colors duration-200">Register here</a></p>
+            <p id="forgot-password-link"><a href="#" class="text-blue-400 hover:text-blue-500 font-medium transition-colors duration-200">Forgot password?</a></p>
+            <p id="back-to-login-link" class="hidden"><a href="#" class="text-blue-400 hover:text-blue-500 font-medium transition-colors duration-200">Back to Login</a></p>
+        </div>
+    </div>
+
+    <!-- Message Box (Modal) -->
+    <div id="message-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 hidden modal-overlay">
+        <div class="modal-content bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative mx-4">
+            <h3 id="message-modal-title" class="text-xl font-bold text-white mb-3"></h3>
+            <p id="message-modal-text" class="text-gray-300 mb-6 message-box-text"></p>
+            <button id="message-modal-close-btn" class="btn-gradient text-white py-2 px-4 rounded-lg font-semibold w-full">Close</button>
+        </div>
+    </div>
+
+   // Firebase SDKs
+<script type="module">
+    // Firebase CDN Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // Realtime Database is not strictly needed for login/reset, but included if you had plans for it here
+    // import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    // Your Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAg4uAaMhUsZaA3bTfRuHy7kNfnalYzE-o",
+        authDomain: "thrushgains.firebaseapp.com",
+        projectId: "thrushgains",
+        storageBucket: "thrushgains.firebasestorage.app",
+        messagingSenderId: "859074169386",
+        appId: "1:859074169386:web:55d1fd673abe58e0405153",
+        measurementId: "G-4HQKL3MLLE"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    // const db = getDatabase(app); // Only uncomment if you explicitly need Realtime Database features here
+
+    // UI elements
+    const preloader = document.getElementById('preloader');
+    const authContainer = document.getElementById('auth-container');
+    const loginForm = document.getElementById('login-form');
+    const forgotPasswordForm = document.getElementById('forgot-password-form');
+
+    const toggleRegisterLink = document.getElementById('toggle-register-link');
+    const forgotPasswordLink = document.getElementById('forgot-password-link');
+    const backToLoginLink = document.getElementById('back-to-login-link');
+
+    const loginBtn = document.getElementById('login-btn');
+    const loginBtnText = document.getElementById('login-btn-text');
+    const loginSpinner = document.getElementById('login-spinner');
+
+    const resetPasswordBtn = document.getElementById('reset-password-btn');
+    const resetPasswordBtnText = document.getElementById('reset-password-btn-text');
+    const resetPasswordSpinner = document.getElementById('reset-password-spinner');
+
+    const messageModal = document.getElementById('message-modal');
+    const messageModalTitle = document.getElementById('message-modal-title');
+    const messageModalText = document.getElementById('message-modal-text');
+    const messageModalCloseBtn = document.getElementById('message-modal-close-btn');
+
+    // Function to show custom message box (modal)
+    function showMessageBox(title, message) {
+        messageModalTitle.textContent = title;
+        messageModalText.textContent = message;
+        messageModal.classList.remove('hidden');
+    }
+
+    // Function to hide custom message box
+    function hideMessageBox() {
+        messageModal.classList.add('hidden');
+    }
+
+    messageModalCloseBtn.addEventListener('click', hideMessageBox);
+
+    // Utility to handle button loading states
+    function setButtonLoading(button, textSpan, spinner, isLoading) {
+        if (isLoading) {
+            textSpan.classList.add('hidden');
+            spinner.classList.remove('hidden');
+            button.disabled = true;
+        } else {
+            textSpan.classList.remove('hidden');
+            spinner.classList.add('hidden');
+            button.disabled = false;
+        }
+    }
+
+    // --- Authentication Functions ---
+
+    // Function to handle user login
+    async function loginUser(email, password) {
+        setButtonLoading(loginBtn, loginBtnText, loginSpinner, true);
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            console.log("User logged in:", user.email);
+            showMessageBox("Success", "Logged in successfully! Redirecting to dashboard...");
+            // Redirect to dashboard after a short delay
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1500); // Redirect after 1.5 seconds
+        } catch (error) {
+            console.error("Login failed:", error);
+            let errorMessage = "Login failed. Please check your credentials.";
+            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                errorMessage = "Invalid email or password.";
+            } else if (error.code === 'auth/invalid-email') {
+                errorMessage = "Please enter a valid email address.";
+            } else if (error.code === 'auth/too-many-requests') {
+                errorMessage = "Too many failed login attempts. Please try again later or reset your password.";
+            }
+            showMessageBox("Login Failed", errorMessage);
+        } finally {
+            setButtonLoading(loginBtn, loginBtnText, loginSpinner, false);
+        }
+    }
+
+    // Function to handle password reset
+    async function resetPassword(email) {
+        setButtonLoading(resetPasswordBtn, resetPasswordBtnText, resetPasswordSpinner, true);
+        try {
+            await sendPasswordResetEmail(auth, email);
+            showMessageBox("Password Reset", "Password reset email sent! Check your inbox.");
+            // Switch back to login form after sending the email
+            showForm('login');
+        } catch (error) {
+            console.error("Password reset failed:", error);
+            let errorMessage = "Failed to send reset email. Please try again.";
+            if (error.code === 'auth/invalid-email') {
+                errorMessage = "Please enter a valid email address.";
+            } else if (error.code === 'auth/user-not-found') {
+                errorMessage = "No user found with that email address.";
+            }
+            showMessageBox("Password Reset Failed", errorMessage);
+        } finally {
+            setButtonLoading(resetPasswordBtn, resetPasswordBtnText, resetPasswordSpinner, false);
+        }
+    }
+
+    // --- Form Submission Handlers ---
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = loginForm['login-email'].value;
+        const password = loginForm['login-password'].value;
+        loginUser(email, password);
+    });
+
+    forgotPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = forgotPasswordForm['reset-email'].value;
+        resetPassword(email);
+    });
+
+    // --- Form Switching Logic ---
+
+    // Function to control which form is visible
+    function showForm(formType) {
+        loginForm.classList.add('hidden');
+        forgotPasswordForm.classList.add('hidden');
+
+        toggleRegisterLink.classList.remove('hidden'); // Always show register link on login forms
+        forgotPasswordLink.classList.remove('hidden'); // Always show forgot password link on login forms
+        backToLoginLink.classList.add('hidden'); // Hide back to login by default
+
+        if (formType === 'login') {
+            loginForm.classList.remove('hidden');
+        } else if (formType === 'forgot-password') {
+            forgotPasswordForm.classList.remove('hidden');
+            forgotPasswordLink.classList.add('hidden'); // Hide "Forgot password?" when on its form
+            toggleRegisterLink.classList.add('hidden'); // Hide register link on forgot password form
+            backToLoginLink.classList.remove('hidden'); // Show back to login
+        }
+    }
+
+    // Event listeners for switching forms
+    forgotPasswordLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showForm('forgot-password');
+    });
+
+    backToLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showForm('login');
+    });
+
+    // Initial check for authentication state and preloader hiding
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check auth state immediately
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is already signed in (e.g., from a previous session)
+                console.log("User already signed in:", user.email);
+                showMessageBox("Welcome back!", "You are already logged in. Redirecting to dashboard...");
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html'; // Redirect to dashboard
+                }, 1500);
+            } else {
+                // No user signed in, show the login form
+                showForm('login');
+            }
+            // Hide preloader and show auth container once auth state is checked
+            preloader.classList.add('preloader-hidden');
+            authContainer.classList.add('scale-100', 'opacity-100');
+        });
+    });
+
+    // Ensure preloader is hidden on window load even if JS takes time
+    window.addEventListener('load', () => {
+        preloader.classList.add('preloader-hidden');
+    });
+</script>
+<script type="text/javascript">
+var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+(function(){
+var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+s1.async=true;
+s1.src='https://embed.tawk.to/68a44b7e0f9cc91929d548ba/1j30sdqct';
+s1.charset='UTF-8';
+s1.setAttribute('crossorigin','*');
+s0.parentNode.insertBefore(s1,s0);
+})();
+</script>
+</body>
+</html>
